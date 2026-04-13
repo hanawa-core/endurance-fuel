@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PBYV642X1M"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PBYV642X1M');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Endurance Fuel Calculator</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EnduranceFuel">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  body { font-family: 'Noto Sans JP', sans-serif; -webkit-tap-highlight-color: transparent; }
+  input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.2); }
+  input.error { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.2) !important; }
+  .intensity-btn.selected { background-color:#eff6ff; color:#2563eb; border-color:#3b82f6; font-weight:700; }
+  .dist-preset-btn { font-size:.7rem; padding:2px 6px; border-radius:4px; background:#f3f4f6; color:#4b5563; border:1px solid #e5e7eb; transition:all .2s; }
+  .dist-preset-btn:hover { background:#e5e7eb; }
+  .dist-preset-btn:active { background:#d1d5db; transform:scale(.95); }
+  details > summary { list-style:none; }
+  details > summary::-webkit-details-marker { display:none; }
+  .formula-box { background:linear-gradient(135deg,#fff7ed,#fef3c7); border:1px solid #fbbf24; border-radius:12px; padding:12px 16px; }
+  @keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .animate-fade-in-up { animation:fadeInUp .4s ease both; }
+  /* Result Tabs */
+  .res-tab { padding:10px 20px; font-size:.85rem; font-weight:700; border-bottom:3px solid transparent; color:#6b7280; cursor:pointer; transition:all .2s; white-space:nowrap; }
+  .res-tab.active { border-bottom-color:#2563eb; color:#2563eb; }
+  /* Race Card (for export) */
+  #raceCard {
+    width:390px;
+    background:white;
+    font-family:'Noto Sans JP',sans-serif;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 8px 32px rgba(0,0,0,.18);
+  }
+  #raceCard .card-header {
+    background:linear-gradient(135deg,#1e293b 0%,#334155 100%);
+    padding:18px 20px 14px;
+  }
+  #raceCard .card-metric-row { display:flex; gap:8px; padding:14px 16px 0; }
+  #raceCard .card-metric { flex:1; background:#f8fafc; border-radius:12px; padding:10px 8px; text-align:center; }
+  #raceCard .card-metric .val { font-size:1.6rem; font-weight:900; line-height:1.1; }
+  #raceCard .card-metric .unit { font-size:.65rem; color:#64748b; }
+  #raceCard .card-metric .label { font-size:.65rem; color:#94a3b8; margin-bottom:2px; }
+  #raceCard table { width:100%; border-collapse:collapse; font-size:.72rem; }
+  #raceCard table th { background:#f1f5f9; padding:6px 10px; color:#64748b; font-weight:700; text-align:left; }
+  #raceCard table td { padding:7px 10px; border-bottom:1px solid #f1f5f9; }
+  #raceCard table tr:last-child td { border-bottom:none; }
+  #raceCard table tr.support-row td { background:#f0fdf4; }
+  /* Export overlay */
+  #exportOverlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:100; display:flex; align-items:center; justify-content:center; }
+  #exportOverlay.hidden { display:none; }
+  /* Race Picker */
+  .race-cat-btn { padding:6px 14px; font-size:.75rem; font-weight:700; border-radius:999px; border:1.5px solid #e5e7eb; color:#6b7280; background:#fff; cursor:pointer; transition:all .15s; white-space:nowrap; }
+  .race-cat-btn.active { background:#1e293b; color:#fff; border-color:#1e293b; }
+  .race-card-btn { width:100%; text-align:left; background:#f8fafc; border:1.5px solid #e5e7eb; border-radius:12px; padding:10px 14px; cursor:pointer; transition:all .15s; }
+  .race-card-btn:hover { border-color:#3b82f6; background:#eff6ff; }
+  .race-card-btn:active { transform:scale(.98); }
+  #racePicker { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  #racePicker.open { max-height:600px; }
+</style>
+</head>
+<body class="bg-gray-100 text-gray-800 antialiased pb-20">
+
+<!-- Header -->
+<header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+  <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <i class="fa-solid fa-mountain-sun text-yellow-400 text-xl"></i>
+      <h1 class="font-bold text-lg tracking-wide">Endurance Fuel</h1>
+    </div>
+    <button id="resetBtn" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-gray-300 transition">
+      <i class="fa-solid fa-rotate-right mr-1"></i>Reset
+    </button>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-4 py-6 space-y-6">
+
+  <!-- 0. Race Picker -->
+  <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <button id="racePickerToggle" class="w-full flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition">
+      <div class="flex items-center gap-2">
+        <span class="bg-gradient-to-br from-orange-400 to-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">
+          <i class="fa-solid fa-list"></i>
+        </span>
+        <div class="text-left">
+          <div class="font-bold text-slate-800 text-sm">レースを選ぶ</div>
+          <div class="text-xs text-gray-400" id="selectedRaceLabel">レースを選択すると全フィールドが自動入力されます</div>
+        </div>
+      </div>
+      <i id="racePickerChevron" class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+    </button>
+
+    <div id="racePicker">
+      <div class="border-t border-gray-100 px-4 pt-3 pb-1">
+        <!-- Category Filter -->
+        <div class="flex gap-2 overflow-x-auto pb-2" style="scrollbar-width:none;">
+          <button class="race-cat-btn active" data-cat="all">すべて</button>
+          <button class="race-cat-btn" data-cat="Mt.FUJI 100">🗻 Mt.FUJI 100</button>
+          <button class="race-cat-btn" data-cat="彩の国">🌸 彩の国</button>
+          <button class="race-cat-btn" data-cat="東京GT">🌲 東京GT</button>
+<button class="race-cat-btn" data-cat="ロードレース">ロード</button>
+          <button class="race-cat-btn" data-cat="登山">登山</button>
+        </div>
+      </div>
+      <!-- Race List -->
+      <div id="raceList" class="px-4 pb-4 space-y-2 overflow-y-auto" style="max-height:380px;"></div>
+    </div>
+  </section>
+
+  <!-- 1. Profile -->
+  <section class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+    <h2 class="text-slate-800 font-bold mb-4 flex items-center border-b pb-2">
+      <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">1</span>
+      ランナー情報
+    </h2>
+
+    <!-- Race Name -->
+    <div class="mb-4">
+      <label class="block text-sm text-gray-500 mb-1"><i class="fa-solid fa-flag-checkered mr-1 text-gray-400"></i>レース名 <span class="text-xs text-gray-400">(カード出力に使用)</span></label>
+      <input type="text" id="raceName" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm" placeholder="例: UTMF 2025">
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Gender -->
+      <div>
+        <label class="block text-sm text-gray-500 mb-1">性別</label>
+        <div class="flex bg-gray-50 rounded-lg p-1">
+          <label class="flex-1 text-center cursor-pointer">
+            <input type="radio" name="gender" value="male" class="peer hidden" checked>
+            <span class="block py-2 rounded-md text-sm text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition">男性</span>
+          </label>
+          <label class="flex-1 text-center cursor-pointer">
+            <input type="radio" name="gender" value="female" class="peer hidden">
+            <span class="block py-2 rounded-md text-sm text-gray-500 peer-checked:bg-white peer-checked:text-pink-600 peer-checked:shadow-sm transition">女性</span>
+          </label>
+        </div>
+      </div>
+      <!-- Weight -->
+      <div>
+        <label class="block text-sm text-gray-500 mb-1">体重 (kg)</label>
+        <div class="relative">
+          <input type="number" id="weight" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium" placeholder="60" value="65" min="30" max="200">
+          <span class="absolute right-3 top-2 text-gray-400 text-sm pointer-events-none">kg</span>
+        </div>
+      </div>
+      <!-- Equipment Weight -->
+      <div>
+        <label class="block text-sm text-gray-500 mb-1">装備重量 (kg) <span class="text-xs text-gray-400">ザック含む</span></label>
+        <div class="relative">
+          <input type="number" id="equipWeight" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium" placeholder="5" value="5" min="0" max="50">
+          <span class="absolute right-3 top-2 text-gray-400 text-sm pointer-events-none">kg</span>
+        </div>
+      </div>
+      <!-- Sweat Type -->
+      <div>
+        <label class="block text-sm text-gray-500 mb-1">発汗タイプ (塩分濃度)</label>
+        <select id="sweatType" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer h-[42px]">
+          <option value="low">少ない (塩吹かない)</option>
+          <option value="normal" selected>普通 (少し白くなる)</option>
+          <option value="high">多い (塩で真っ白)</option>
+        </select>
+      </div>
+    </div>
+    <!-- Formula Preview -->
+    <div class="formula-box mt-4">
+      <p class="text-xs text-amber-800 font-bold mb-1"><i class="fa-solid fa-fire mr-1 text-orange-500"></i>使用カロリー計算式</p>
+      <p class="text-xs text-amber-900 leading-relaxed">
+        <strong>(1.8×時間 + 0.3×距離 + 10.0×上り(km) + 0.6×下り(km))</strong>
+        <span class="mx-1 text-orange-500 font-bold">×</span>
+        <strong>(体重 + 装備重量)</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- 2. Race & Environment -->
+  <section class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+    <h2 class="text-slate-800 font-bold mb-4 flex items-center border-b pb-2">
+      <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">2</span>
+      レース・環境
+    </h2>
+
+    <!-- Type Selector -->
+    <div class="flex bg-gray-50 rounded-lg p-1 mb-4">
+      <label class="flex-1 text-center cursor-pointer">
+        <input type="radio" name="raceType" value="road" class="peer hidden">
+        <span class="block py-2 rounded-md text-sm font-medium text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition">
+          <i class="fa-solid fa-road mr-1"></i>ロード
+        </span>
+      </label>
+      <label class="flex-1 text-center cursor-pointer">
+        <input type="radio" name="raceType" value="trail" class="peer hidden" checked>
+        <span class="block py-2 rounded-md text-sm font-medium text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition">
+          <i class="fa-solid fa-mountain mr-1"></i>トレイル / 登山
+        </span>
+      </label>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <!-- Distance -->
+      <div>
+        <label class="block text-sm text-gray-500 mb-1">距離 (km) <span class="text-red-400">*</span></label>
+        <input type="number" id="distance" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-right font-medium" placeholder="例: 25">
+        <div id="roadDistPresets" class="hidden flex flex-wrap gap-1 mt-2">
+          <button type="button" class="dist-preset-btn" onclick="setDistance(10)">10km</button>
+          <button type="button" class="dist-preset-btn" onclick="setDistance(21.0975)">ハーフ</button>
+          <button type="button" class="dist-preset-btn" onclick="setDistance(42.195)">フル</button>
+          <button type="button" class="dist-preset-btn" onclick="setDistance(100)">100km</button>
+        </div>
+      </div>
+      <!-- Time -->
+      <div>
+        <label class="block text-sm text-gray-500 mb-1 flex justify-between items-center">
+          <span>目標タイム <span class="text-red-400">*</span></span>
+          <span id="calculatedPace" class="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full">--:-- /km</span>
+        </label>
+        <div class="flex gap-1 items-center">
+          <div class="relative flex-1">
+            <input type="number" id="timeH" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-medium" placeholder="時">
+            <span class="absolute right-2 top-2 text-gray-400 text-xs pointer-events-none">h</span>
+          </div>
+          <span class="text-gray-400 font-bold">:</span>
+          <div class="relative flex-1">
+            <input type="number" id="timeM" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-medium" placeholder="分">
+            <span class="absolute right-2 top-2 text-gray-400 text-xs pointer-events-none">m</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Elevation (Trail) -->
+    <div id="elevationGroup" class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-sm text-gray-500 mb-1">
+          <i class="fa-solid fa-arrow-trend-up text-green-500 mr-1"></i>上り累積 (m)
+        </label>
+        <div class="relative">
+          <input type="number" id="elevationUp" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-8 text-right font-medium" placeholder="1000">
+          <span class="absolute right-2 top-2 text-gray-400 text-xs pointer-events-none">m</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-500 mb-1">
+          <i class="fa-solid fa-arrow-trend-down text-red-400 mr-1"></i>下り累積 (m)
+        </label>
+        <div class="relative">
+          <input type="number" id="elevationDown" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-8 text-right font-medium" placeholder="1000">
+          <span class="absolute right-2 top-2 text-gray-400 text-xs pointer-events-none">m</span>
+        </div>
+      </div>
+      <div class="col-span-2 -mt-2 text-xs text-gray-400">
+        <i class="fa-solid fa-circle-info mr-1"></i>周回・点対点コースで上り≠下りの場合は個別入力
+      </div>
+    </div>
+
+    <!-- Intensity Presets -->
+    <div class="mb-4">
+      <label class="block text-sm text-gray-500 mb-2"><i class="fa-solid fa-gauge-high mr-1"></i>強度 / 目標ペース設定</label>
+      <div id="roadPresets" class="hidden grid grid-cols-2 gap-2">
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub250">サブ 2:50</button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub3">サブ 3</button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub35">サブ 3:30</button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub4">サブ 4:00</button>
+      </div>
+      <div id="trailPresets" class="grid grid-cols-2 gap-2">
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="trail" data-val="tozan">登山 (歩き中心)</button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="trail" data-val="slow">トレイル (ゆっくり)</button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition selected" data-mode="trail" data-val="normal">トレイル (普通)</button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="trail" data-val="fast">トレイル (レース)</button>
+      </div>
+      <p class="text-xs text-gray-400 mt-1.5 text-right">強度は水分・ナトリウム計算に反映されます</p>
+    </div>
+
+    <!-- Weather -->
+    <div class="grid grid-cols-2 gap-4 bg-orange-50 p-3 rounded-lg border border-orange-100">
+      <div>
+        <label class="block text-xs text-orange-800 mb-1"><i class="fa-solid fa-temperature-half mr-1"></i>気温 (℃)</label>
+        <input type="number" id="temp" class="w-full bg-white border border-orange-200 rounded-lg py-1.5 px-3 text-center text-sm" value="20">
+      </div>
+      <div>
+        <label class="block text-xs text-orange-800 mb-1"><i class="fa-solid fa-droplet mr-1"></i>湿度 (%)</label>
+        <input type="number" id="humidity" class="w-full bg-white border border-orange-200 rounded-lg py-1.5 px-3 text-center text-sm" value="60">
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Aid Stations -->
+  <section class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+    <h2 class="text-slate-800 font-bold mb-4 flex justify-between items-center border-b pb-2">
+      <span class="flex items-center">
+        <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">3</span>
+        エイドステーション (AS)
+      </span>
+      <button id="addAsBtn" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-full font-medium transition">
+        <i class="fa-solid fa-plus mr-1"></i>AS追加
+      </button>
+    </h2>
+    <div class="text-xs text-gray-400 mb-3 bg-gray-50 p-2 rounded">
+      <i class="fa-solid fa-lightbulb text-yellow-500 mr-1"></i>ASがない場合は追加不要です。Startから Finishまで一区間として計算します。
+    </div>
+    <div class="text-xs text-gray-500 mb-2 flex items-center px-1 gap-2">
+      <span class="w-[45%]">名称</span>
+      <span class="w-[30%] text-center">地点 (km)</span>
+      <span class="w-[15%] text-center text-[10px] leading-tight">サポート<br>有無</span>
+      <span class="w-8"></span>
+    </div>
+    <div id="asContainer" class="space-y-2"></div>
+    <p id="asError" class="text-red-500 text-xs mt-2 hidden text-right"><i class="fa-solid fa-circle-exclamation mr-1"></i>距離順序が不正です</p>
+  </section>
+
+  <!-- Calculate Button -->
+  <div class="sticky bottom-4 z-40">
+    <button id="calcBtn" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition transform active:scale-95 flex justify-center items-center text-lg gap-2">
+      <i class="fa-solid fa-calculator"></i> 補給計画を計算する
+    </button>
+  </div>
+
+  <!-- 4. Results -->
+  <div id="resultSection" class="hidden space-y-4 animate-fade-in-up pb-10">
+
+    <!-- Tab Bar -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="flex border-b border-gray-100 overflow-x-auto">
+        <button class="res-tab active" data-tab="detail">
+          <i class="fa-solid fa-chart-bar mr-1"></i>詳細データ
+        </button>
+        <button class="res-tab" data-tab="card">
+          <i class="fa-solid fa-id-card mr-1"></i>レースカード
+        </button>
+        <button class="res-tab" data-tab="supply">
+          <i class="fa-solid fa-gear mr-1"></i>補給食設定
+        </button>
+      </div>
+
+      <!-- ===== TAB: 詳細データ ===== -->
+      <div id="tab-detail" class="p-5 space-y-5">
+
+        <!-- Summary dark card -->
+        <div class="bg-slate-800 text-white rounded-xl p-5">
+          <h3 class="text-center text-slate-300 text-xs mb-4 border-b border-slate-700 pb-2 uppercase tracking-wider">総計</h3>
+
+          <!-- Calorie breakdown -->
+          <div class="formula-box mb-4">
+            <p class="text-xs text-amber-800 font-bold mb-2"><i class="fa-solid fa-calculator mr-1"></i>カロリー計算内訳</p>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs text-amber-900">
+              <div class="bg-white/60 rounded-lg p-2">
+                <div class="text-[10px] text-amber-700 mb-0.5">時間項</div>
+                <div class="font-bold" id="breakdownTime">--</div>
+              </div>
+              <div class="bg-white/60 rounded-lg p-2">
+                <div class="text-[10px] text-amber-700 mb-0.5">距離+標高項</div>
+                <div class="font-bold" id="breakdownDist">--</div>
+              </div>
+              <div class="bg-white/60 rounded-lg p-2">
+                <div class="text-[10px] text-amber-700 mb-0.5">体重合計</div>
+                <div class="font-bold" id="breakdownWeight">--</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center divide-x divide-slate-700 mb-5">
+            <div>
+              <div class="text-xs text-slate-400 mb-1">消費カロリー</div>
+              <div class="text-xl font-bold text-yellow-400"><span id="resTotalCal">0</span></div>
+              <div class="text-xs text-slate-400">kcal</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400 mb-1">水分総量</div>
+              <div class="text-xl font-bold text-blue-400"><span id="resTotalWater">0</span></div>
+              <div class="text-xs text-slate-400">L</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400 mb-1">Na総量</div>
+              <div class="text-xl font-bold text-pink-400"><span id="resTotalNa">0</span></div>
+              <div class="text-xs text-slate-400">mg <span class="text-[10px]">(食塩 <span id="resTotalSalt">0</span>g)</span></div>
+            </div>
+          </div>
+
+          <h3 class="text-center text-slate-300 text-xs mb-3 border-b border-slate-700 pb-2 uppercase tracking-wider">1時間あたりの推奨補給量</h3>
+          <div class="space-y-2.5">
+            <div class="bg-slate-700/50 rounded-lg p-3 flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bowl-rice text-yellow-400 w-5 text-center"></i>
+                <span class="text-sm">炭水化物</span>
+              </div>
+              <div><span id="recCarbs" class="text-2xl font-bold">0</span> <span class="text-xs text-slate-400">g/h</span></div>
+            </div>
+            <div class="bg-slate-700/50 rounded-lg p-3 flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bottle-water text-blue-400 w-5 text-center"></i>
+                <span class="text-sm">水分</span>
+              </div>
+              <div><span id="recWater" class="text-2xl font-bold">0</span> <span class="text-xs text-slate-400">ml/h</span></div>
+            </div>
+            <div class="bg-slate-700/50 rounded-lg p-3 flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-shrimp text-pink-400 w-5 text-center"></i>
+                <span class="text-sm">ナトリウム</span>
+              </div>
+              <div class="text-right">
+                <div><span id="recNa" class="text-2xl font-bold">0</span> <span class="text-xs text-slate-400">mg/h</span></div>
+                <div class="text-xs text-slate-400">食塩: <span id="recSalt">0</span>g/h</div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 flex justify-between text-xs text-slate-500">
+            <span>強度: <span id="usedIntensity" class="text-slate-300">--</span></span>
+            <span>速度: <span id="usedSpeed" class="text-slate-300">--</span> km/h</span>
+          </div>
+          <div id="highCarbAlert" class="hidden mt-3 text-xs text-red-300 bg-red-900/30 p-2 rounded border border-red-800">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i>高負荷につき推奨糖質が高めです。胃腸トレーニングを十分に行ってください。
+          </div>
+        </div>
+
+        <!-- AS Plan Table -->
+        <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+          <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+            <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-list-check mr-2 text-blue-600"></i>区間別 補給計画</h3>
+            <span class="text-xs text-gray-400">ジェル設定は「補給食設定」タブで変更</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-gray-50 text-xs text-gray-500">
+                <tr>
+                  <th class="px-4 py-3">区間</th>
+                  <th class="px-4 py-3 text-center text-blue-600 bg-blue-50/50">水分</th>
+                  <th class="px-4 py-3 text-center text-yellow-600 bg-yellow-50/50">ジェル</th>
+                  <th class="px-4 py-3 text-center text-pink-600 bg-pink-50/50">残Na</th>
+                </tr>
+              </thead>
+              <tbody id="planTableBody" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+          <div class="p-3 text-xs text-gray-400 bg-gray-50">
+            ※ 残Na = ジェルで補えないナトリウム。塩熱サプリ・梅干し等で補給してください。
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: レースカード ===== -->
+      <div id="tab-card" class="hidden p-5">
+        <p class="text-sm text-gray-500 mb-4 text-center">
+          <i class="fa-solid fa-mobile-screen mr-1 text-blue-500"></i>
+          レース中にスマホで確認できるカードを出力します
+        </p>
+
+        <!-- Card Preview Container -->
+        <div class="flex justify-center mb-5" id="cardPreviewArea">
+          <div id="raceCard">
+            <!-- Card Header -->
+            <div class="card-header">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-mountain-sun text-yellow-400 text-lg"></i>
+                  <span class="text-white font-black text-sm tracking-wider">ENDURANCE FUEL</span>
+                </div>
+                <span class="text-slate-400 text-xs" id="cardDate">--</span>
+              </div>
+              <div class="text-white font-black text-xl mt-1 truncate" id="cardRaceName">レース名未入力</div>
+              <div class="flex gap-3 mt-2 text-xs">
+                <span class="text-slate-300"><i class="fa-solid fa-route mr-1 text-yellow-400"></i><span id="cardDist">--</span>km</span>
+                <span class="text-slate-300"><i class="fa-solid fa-clock mr-1 text-blue-400"></i><span id="cardTime">--</span></span>
+                <span class="text-slate-300" id="cardElevSpan"><i class="fa-solid fa-mountain mr-1 text-green-400"></i><span id="cardElev">--</span>m↑</span>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div style="background:linear-gradient(90deg,#f97316,#eab308,#22c55e);height:3px;"></div>
+
+            <!-- Per-hour metrics -->
+            <div style="background:#f8fafc;padding:10px 14px 6px;">
+              <div style="font-size:.65rem;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">
+                1時間あたりの補給目安
+              </div>
+            </div>
+            <div class="card-metric-row" style="padding:0 14px 12px;">
+              <div class="card-metric">
+                <div class="label">糖質</div>
+                <div class="val" style="color:#d97706;" id="cardCarbs">--</div>
+                <div class="unit">g / h</div>
+              </div>
+              <div class="card-metric">
+                <div class="label">水分</div>
+                <div class="val" style="color:#2563eb;" id="cardWater">--</div>
+                <div class="unit">ml / h</div>
+              </div>
+              <div class="card-metric">
+                <div class="label">ナトリウム</div>
+                <div class="val" style="color:#db2777;" id="cardNa">--</div>
+                <div class="unit">mg / h</div>
+              </div>
+            </div>
+
+            <!-- AS Plan Table -->
+            <div style="background:#f8fafc;padding:8px 14px 4px;">
+              <div style="font-size:.65rem;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">
+                補給計画
+              </div>
+            </div>
+            <div style="padding:0 0 4px;">
+              <table id="cardTable">
+                <thead>
+                  <tr>
+                    <th>区間</th>
+                    <th style="text-align:center;color:#2563eb;">水分</th>
+                    <th style="text-align:center;color:#d97706;">ジェル</th>
+                    <th style="text-align:center;color:#db2777;">残Na</th>
+                  </tr>
+                </thead>
+                <tbody id="cardTableBody">
+                  <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:12px;">計算後に表示されます</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Footer -->
+            <div style="background:#1e293b;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-size:.65rem;color:#94a3b8;line-height:1.6;">
+                <span id="cardTemp">--℃</span> / <span id="cardHumid">--%</span>&nbsp;
+                体重 <span id="cardWeight">--</span>kg+<span id="cardEquip">--</span>kg
+              </div>
+              <div style="font-size:.55rem;color:#475569;">Endurance Fuel Calculator</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Button -->
+        <button id="exportBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-200 transition transform active:scale-95 flex justify-center items-center gap-2 text-base">
+          <i class="fa-solid fa-download"></i> 画像として保存 (スマホ用)
+        </button>
+        <p class="text-xs text-gray-400 text-center mt-2">
+          <i class="fa-solid fa-circle-info mr-1"></i>PNG形式でダウンロードされます。写真アプリで開くとホーム画面に追加できます。
+        </p>
+      </div>
+
+      <!-- ===== TAB: 補給食設定 ===== -->
+      <div id="tab-supply" class="hidden p-5">
+        <h3 class="font-bold text-slate-800 mb-4 text-sm">使用するジェルの栄養情報</h3>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">ジェル 炭水化物 (g/個)</label>
+            <input type="number" id="gelCarbs" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-center font-medium" value="40">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">ジェル Na (mg/個)</label>
+            <input type="number" id="gelNa" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-center font-medium" value="50">
+          </div>
+        </div>
+        <div class="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
+          <p class="font-bold mb-1"><i class="fa-solid fa-circle-info mr-1"></i>設定方法</p>
+          <p>お使いのジェルのパッケージ裏面の栄養成分表を確認して入力してください。変更後は自動的に計画表に反映されます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logic Details Accordion -->
+  <section class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+    <details class="group">
+      <summary class="flex justify-between items-center font-bold cursor-pointer list-none text-slate-700">
+        <span><i class="fa-solid fa-calculator mr-2 text-gray-400"></i>計算ロジックの詳細</span>
+        <span class="transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-gray-400"></i></span>
+      </summary>
+      <div class="text-xs text-gray-600 mt-4 space-y-4 leading-relaxed border-t border-gray-100 pt-4">
+        <div>
+          <h4 class="font-bold text-gray-700 mb-1"><i class="fa-solid fa-fire mr-1 text-yellow-500"></i>消費カロリー</h4>
+          <div class="bg-amber-50 border border-amber-200 p-3 rounded space-y-1">
+            <p class="font-bold text-amber-900">kcal = (A + B) × W</p>
+            <ul class="list-disc list-inside space-y-0.5 text-amber-800">
+              <li><strong>A (時間項):</strong> 1.8 × 活動時間(h)</li>
+              <li><strong>B (距離+標高項):</strong> 0.3×距離(km) + 10.0×上り(km) + 0.6×下り(km)</li>
+              <li><strong>W (総重量):</strong> 体重(kg) + 装備重量(kg)</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold text-gray-700 mb-1"><i class="fa-solid fa-droplet mr-1 text-blue-500"></i>水分補給量</h4>
+          <ul class="list-disc list-inside bg-gray-50 p-2 rounded space-y-1">
+            <li>ベース 500ml/h ＋ 気温補正 ＋ 湿度補正 ＋ 強度補正</li>
+            <li>気温補正: (気温−15℃) × 20ml</li>
+            <li>湿度補正: (湿度−70%) × 5ml (70%超のみ)</li>
+            <li>強度補正 (METs): 登山6.5 / 低強度8.0 / 普通10.0 / レース12.0</li>
+            <li>範囲制限: 300〜1500 ml/h</li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-gray-700 mb-1"><i class="fa-solid fa-shrimp mr-1 text-pink-500"></i>ナトリウム必要量</h4>
+          <ul class="list-disc list-inside bg-gray-50 p-2 rounded space-y-1">
+            <li>総水分(L) × 汗中Na濃度: 少ない=400 / 普通=700 / 多い=1000 mg/L</li>
+            <li>食塩相当量: Na(mg) × 2.54 ÷ 1000</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <footer class="mt-8 border-t border-gray-200 pt-6 pb-20 text-center space-y-4">
+    <div class="mx-4 md:mx-auto max-w-sm">
+      <div class="mb-3 text-sm text-gray-600">
+        <p class="font-bold text-slate-700 mb-1">
+          <i class="fa-solid fa-heart text-pink-500 animate-pulse mr-1"></i>開発継続のために
+        </p>
+        <p class="text-xs">もしこのアプリが役に立ったら、<br>開発者のサポートをお願いします！</p>
+      </div>
+      <a href="https://square.link/u/GjtXhfGH?src=sheet" target="_blank" rel="noopener noreferrer"
+         class="block w-full bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white rounded-xl p-3 shadow-lg transition transform hover:scale-[1.02]">
+        <div class="flex items-center justify-center gap-2 font-bold">
+          <i class="fa-solid fa-gift text-xl text-yellow-300"></i>
+          <span>開発者をサポートする</span>
+        </div>
+      </a>
+    </div>
+    <div class="text-xs text-gray-500 bg-gray-50 p-4 rounded-lg mx-2 text-left mt-6">
+      <p class="font-bold mb-1"><i class="fa-solid fa-circle-info mr-1"></i>免責事項</p>
+      <p>本アプリの計算結果は理論値（目安）です。実際の必要量は体調・気象・個人差により異なります。ご自身の体調に合わせて補給計画を立ててください。</p>
+    </div>
+    <a href="mailto:support@example.com?subject=Endurance%20Fuel%20Feedback" class="inline-flex items-center text-xs text-blue-500 hover:text-blue-700 transition">
+      <i class="fa-solid fa-envelope mr-1"></i> バグ報告・機能リクエスト
+    </a>
+    <div class="text-[10px] text-gray-400">&copy; 2025 Endurance Fuel Calculator</div>
+  </footer>
+</main>
+
+<!-- Export Overlay (loading) -->
+<div id="exportOverlay" class="hidden">
+  <div class="bg-white rounded-2xl p-8 text-center shadow-2xl">
+    <i class="fa-solid fa-spinner fa-spin text-4xl text-blue-500 mb-3"></i>
+    <p class="font-bold text-slate-700">画像を生成中...</p>
+  </div>
+</div>
+
+<script>
+// ===== State =====
+const state = {
+  profile: { gender:'male', weight:65, equipWeight:5, sweatType:'normal', raceName:'' },
+  race: { type:'trail', distance:0, elevationUp:0, elevationDown:0, timeH:0, timeM:0, temp:20, humidity:60, intensity:'normal' },
+  asPoints: [],
+  supply: { gelCarbs:40, gelNa:50 },
+  results: null
+};
+
+// ===== Constants =====
+const SWEAT_NA    = { low:400, normal:700, high:1000 };
+const TRAIL_METS  = { tozan:6.5, slow:8.0, normal:10.0, fast:12.0 };
+const DEFAULT_INTENSITY = { trail:'normal', road:'sub3' };
+
+// ===== DOM helpers =====
+const $  = id => document.getElementById(id);
+const els = {
+  weight:$('weight'), equipWeight:$('equipWeight'), sweatType:$('sweatType'),
+  raceName:$('raceName'), distance:$('distance'),
+  elevationUp:$('elevationUp'), elevationDown:$('elevationDown'),
+  timeH:$('timeH'), timeM:$('timeM'), temp:$('temp'), humidity:$('humidity'),
+  gelCarbs:$('gelCarbs'), gelNa:$('gelNa'),
+  elevationGroup:$('elevationGroup'), roadDistPresets:$('roadDistPresets'),
+  calculatedPace:$('calculatedPace'),
+  roadPresets:$('roadPresets'), trailPresets:$('trailPresets'),
+  asContainer:$('asContainer'), addAsBtn:$('addAsBtn'),
+  calcBtn:$('calcBtn'), resultSection:$('resultSection'),
+  resetBtn:$('resetBtn'),
+  resTotalCal:$('resTotalCal'), resTotalWater:$('resTotalWater'),
+  resTotalNa:$('resTotalNa'), resTotalSalt:$('resTotalSalt'),
+  recCarbs:$('recCarbs'), recWater:$('recWater'), recNa:$('recNa'), recSalt:$('recSalt'),
+  usedIntensity:$('usedIntensity'), usedSpeed:$('usedSpeed'),
+  highCarbAlert:$('highCarbAlert'), planTableBody:$('planTableBody'),
+  breakdownTime:$('breakdownTime'), breakdownDist:$('breakdownDist'), breakdownWeight:$('breakdownWeight'),
+  exportBtn:$('exportBtn'), exportOverlay:$('exportOverlay'),
+};
+
+// ===== Init =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  renderASInputs();
+  setupEventListeners();
+  updateUIState();
+});
+
+function setupEventListeners() {
+  // Inputs → save
+  [els.weight, els.equipWeight, els.sweatType, els.temp, els.humidity, els.raceName].forEach(el => {
+    el.addEventListener('input', saveState);
+  });
+  [els.distance, els.elevationUp, els.elevationDown].forEach(el => {
+    el.addEventListener('input', () => { updatePaceDisplay(); saveState(); });
+  });
+  [els.timeH, els.timeM].forEach(el => {
+    el.addEventListener('input', () => { updatePaceDisplay(); saveState(); });
+  });
+  [els.gelCarbs, els.gelNa].forEach(el => {
+    el.addEventListener('input', () => { saveState(); if (state.results) { updatePlanTable(); updateCardTable(); } });
+  });
+
+  document.getElementsByName('gender').forEach(r => r.addEventListener('change', saveState));
+  document.getElementsByName('raceType').forEach(r => r.addEventListener('change', () => {
+    updateUIState(true); // true = reset intensity
+    saveState();
+  }));
+
+  document.querySelectorAll('.intensity-btn').forEach(btn => {
+    btn.addEventListener('click', e => handlePresetClick(e.currentTarget));
+  });
+
+  // Result Tabs
+  document.querySelectorAll('.res-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  });
+
+  els.addAsBtn.addEventListener('click', () => addAS());
+  els.calcBtn.addEventListener('click', calculateAll);
+  els.exportBtn && els.exportBtn.addEventListener('click', exportCard);
+  els.resetBtn.addEventListener('click', () => {
+    if (confirm('全てのデータをリセットしますか？')) {
+      localStorage.removeItem('efc_data');
+      location.reload();
+    }
+  });
+}
+
+// ===== Tab switching =====
+function switchTab(tabId) {
+  document.querySelectorAll('.res-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+  ['detail','card','supply'].forEach(id => {
+    $('tab-' + id).classList.toggle('hidden', id !== tabId);
+  });
+  if (tabId === 'card') updateCardContent();
+}
+
+// ===== Distance preset =====
+window.setDistance = km => {
+  els.distance.value = km;
+  updatePaceDisplay();
+  saveState();
+};
+
+// ===== Intensity preset =====
+function handlePresetClick(btn) {
+  const mode = btn.dataset.mode;
+  const container = mode === 'road' ? els.roadPresets : els.trailPresets;
+  container.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.race.intensity = btn.dataset.val;
+  if (mode === 'road') applyRoadPreset(state.race.intensity);
+  saveState();
+}
+
+function applyRoadPreset(val) {
+  const dist = parseFloat(els.distance.value);
+  if (!dist) { alert("先に距離(km)を入力してください"); return; }
+  const paceSec = { sub250:241, sub3:256, sub35:298, sub4:341 }[val];
+  if (!paceSec) return;
+  const total = dist * paceSec;
+  els.timeH.value = Math.floor(total / 3600);
+  els.timeM.value = Math.floor((total % 3600) / 60);
+  updatePaceDisplay();
+}
+
+// ===== UI State =====
+// resetIntensity=true: モード切替時に強度をリセット
+function updateUIState(resetIntensity = false) {
+  const isTrail = Array.from(document.getElementsByName('raceType')).find(r => r.checked).value === 'trail';
+
+  els.elevationGroup.classList.toggle('hidden', !isTrail);
+  els.trailPresets.classList.toggle('hidden', !isTrail);
+  els.roadPresets.classList.toggle('hidden', isTrail);
+  els.roadDistPresets.classList.toggle('hidden', isTrail);
+
+  if (resetIntensity) {
+    state.race.intensity = isTrail ? DEFAULT_INTENSITY.trail : DEFAULT_INTENSITY.road;
+  }
+
+  // Sync visual selection
+  const container = isTrail ? els.trailPresets : els.roadPresets;
+  const opposite  = isTrail ? els.roadPresets  : els.trailPresets;
+  opposite.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
+  container.querySelectorAll('.intensity-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.val === state.race.intensity);
+  });
+}
+
+function updatePaceDisplay() {
+  const dist = parseFloat(els.distance.value) || 0;
+  const h    = parseFloat(els.timeH.value) || 0;
+  const m    = parseFloat(els.timeM.value) || 0;
+  if (dist > 0 && (h > 0 || m > 0)) {
+    const paceMin = (h * 60 + m) / dist;
+    const pMin = Math.floor(paceMin);
+    const pSec = Math.floor((paceMin - pMin) * 60);
+    els.calculatedPace.textContent = `${pMin}:${pSec.toString().padStart(2,'0')} /km`;
+  } else {
+    els.calculatedPace.textContent = '--:-- /km';
+  }
+}
+
+// ===== Validation =====
+function validateInputs() {
+  let valid = true;
+  [els.distance, els.timeH].forEach(el => el.classList.remove('error'));
+
+  const dist = parseFloat(els.distance.value);
+  const h    = parseFloat(els.timeH.value) || 0;
+  const m    = parseFloat(els.timeM.value) || 0;
+
+  if (!dist || dist <= 0) { els.distance.classList.add('error'); valid = false; }
+  if (h === 0 && m === 0) { els.timeH.classList.add('error'); valid = false; }
+  if (!valid) {
+    els.distance.scrollIntoView({ behavior:'smooth', block:'center' });
+    els.distance.parentElement.insertAdjacentHTML('beforeend',
+      '<p class="text-red-500 text-xs mt-1 validation-msg"><i class="fa-solid fa-circle-exclamation mr-1"></i>距離と目標タイムを入力してください</p>');
+    setTimeout(() => document.querySelectorAll('.validation-msg').forEach(e => e.remove()), 3000);
+  }
+  return valid;
+}
+
+// ===== AS Management =====
+function addAS(name='', km='', isSupport=false) {
+  const count = state.asPoints.length + 1;
+  state.asPoints.push({ id: Date.now().toString(), name: name || `AS${count}`, km, isSupport });
+  renderASInputs();
+  saveState();
+}
+
+function removeAS(id) {
+  state.asPoints = state.asPoints.filter(p => p.id !== id);
+  renderASInputs();
+  saveState();
+}
+
+function renderASInputs() {
+  els.asContainer.innerHTML = '';
+  state.asPoints.sort((a,b) => parseFloat(a.km||0) - parseFloat(b.km||0));
+  state.asPoints.forEach(p => {
+    const row = document.createElement('div');
+    row.className = `flex gap-2 items-center p-2 rounded-lg border ${p.isSupport ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-100'}`;
+    row.innerHTML = `
+      <div class="w-[45%]">
+        <input type="text" value="${p.name}" onchange="updateAS('${p.id}','name',this.value)"
+          class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm" placeholder="AS名">
+      </div>
+      <div class="w-[30%]">
+        <input type="number" value="${p.km}" onchange="updateAS('${p.id}','km',this.value)"
+          class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-center font-bold" placeholder="km">
+      </div>
+      <div class="w-[15%] flex justify-center">
+        <input type="checkbox" ${p.isSupport?'checked':''} onchange="updateAS('${p.id}','isSupport',this.checked)"
+          class="w-5 h-5 accent-green-500 cursor-pointer">
+      </div>
+      <div class="w-8 text-center">
+        <button onclick="removeAS('${p.id}')" class="text-gray-400 hover:text-red-500 transition p-1">
+          <i class="fa-solid fa-trash text-sm"></i>
+        </button>
+      </div>
+    `;
+    els.asContainer.appendChild(row);
+  });
+}
+
+window.updateAS = (id, field, value) => {
+  const p = state.asPoints.find(item => item.id === id);
+  if (!p) return;
+  p[field] = value;
+  if (field === 'isSupport') renderASInputs();
+  saveState();
+};
+window.removeAS = removeAS;
+
+// ===== Core Calculation =====
+function calculateAll() {
+  if (!validateInputs()) return;
+
+  const weight      = parseFloat(els.weight.value)      || 60;
+  const equipWeight = parseFloat(els.equipWeight.value) || 0;
+  const totalWeight = weight + equipWeight;
+  const dist        = parseFloat(els.distance.value)    || 0;
+  const elevUp      = parseFloat(els.elevationUp.value)  || 0;
+  const elevDown    = parseFloat(els.elevationDown.value)|| 0;
+  const timeH       = parseFloat(els.timeH.value)        || 0;
+  const timeM       = parseFloat(els.timeM.value)        || 0;
+  const temp        = parseFloat(els.temp.value)         || 20;
+  const humidity    = parseFloat(els.humidity.value)     || 50;
+  const sweatType   = els.sweatType.value;
+  const intensity   = state.race.intensity;
+  const isTrail     = Array.from(document.getElementsByName('raceType')).find(r => r.checked).value === 'trail';
+
+  const totalHours = timeH + timeM / 60;
+  const speedKmh   = dist / totalHours;
+
+  // ---- Calorie (new formula) ----
+  const elevUpKm   = elevUp   / 1000;
+  const elevDownKm = elevDown / 1000;
+  const termTime   = 1.8  * totalHours;
+  const termDist   = 0.3  * dist + 10.0 * elevUpKm + 0.6 * elevDownKm;
+  const calories   = Math.round((termTime + termDist) * totalWeight);
+
+  // ---- METs for hydration ----
+  let mets, displayIntensity;
+  if (isTrail) {
+    mets = TRAIL_METS[intensity] || 10.0;
+    displayIntensity = {tozan:'登山 (歩き中心)',slow:'トレイル (ゆっくり)',normal:'トレイル (普通)',fast:'トレイル (レース)'}[intensity] || '標準';
+  } else {
+    mets = speedKmh * 0.9 + 1;
+    displayIntensity = 'ロード (速度依存)';
+  }
+
+  // ---- Hydration ----
+  let hourlySweat = 500
+    + Math.max(0, (temp - 15) * 20)
+    + (humidity > 70 ? (humidity - 70) * 5 : 0)
+    + (mets - 8) * 50;
+  hourlySweat = Math.min(1500, Math.max(300, hourlySweat));
+  const totalWaterL = (hourlySweat * totalHours) / 1000;
+
+  // ---- Sodium ----
+  const naConc   = SWEAT_NA[sweatType];
+  const hourlyNa = (hourlySweat / 1000) * naConc;
+  const totalNa  = hourlyNa * totalHours;
+
+  // ---- Carbs ----
+  let hourlyCarbs;
+  if (mets < 7)        hourlyCarbs = 30;
+  else if (totalHours < 3) hourlyCarbs = 45;
+  else if (mets > 11)  hourlyCarbs = 80;
+  else                 hourlyCarbs = 60;
+
+  // Format time
+  const fmtH = Math.floor(totalHours);
+  const fmtM = Math.round((totalHours - fmtH) * 60);
+  const timeStr = fmtM > 0 ? `${fmtH}h${fmtM}m` : `${fmtH}h`;
+
+  state.results = {
+    totalCal: calories,
+    totalWaterL: totalWaterL.toFixed(1),
+    totalNa: Math.round(totalNa),
+    totalSalt: (totalNa * 2.54 / 1000).toFixed(1),
+    hourlyCarbs, hourlyWater: Math.round(hourlySweat),
+    hourlyNa: Math.round(hourlyNa),
+    hourlySalt: (hourlyNa * 2.54 / 1000).toFixed(1),
+    totalHours, dist, speedKmh, displayIntensity,
+    termTime: Math.round(termTime * 10)/10,
+    termDist: Math.round(termDist * 10)/10,
+    totalWeight, elevUp, elevDown, timeStr,
+    weight, equipWeight, temp, humidity
+  };
+
+  // Render detail tab
+  els.resTotalCal.textContent   = state.results.totalCal;
+  els.resTotalWater.textContent = state.results.totalWaterL;
+  els.resTotalNa.textContent    = state.results.totalNa;
+  els.resTotalSalt.textContent  = state.results.totalSalt;
+  els.recCarbs.textContent      = state.results.hourlyCarbs;
+  els.recWater.textContent      = state.results.hourlyWater;
+  els.recNa.textContent         = state.results.hourlyNa;
+  els.recSalt.textContent       = state.results.hourlySalt;
+  els.usedIntensity.textContent = state.results.displayIntensity;
+  els.usedSpeed.textContent     = speedKmh.toFixed(1);
+  els.breakdownTime.textContent   = `1.8×${totalHours.toFixed(1)} = ${state.results.termTime}`;
+  els.breakdownDist.textContent   = `${state.results.termDist}`;
+  els.breakdownWeight.textContent = `${weight}+${equipWeight} = ${totalWeight}kg`;
+  els.highCarbAlert.classList.toggle('hidden', hourlyCarbs <= 75);
+
+  els.resultSection.classList.remove('hidden');
+  switchTab('detail');
+  setTimeout(() => els.resultSection.scrollIntoView({ behavior:'smooth' }), 100);
+
+  updatePlanTable();
+  updateCardContent();
+  saveState();
+}
+
+// ===== Plan Table =====
+function buildSegments() {
+  if (!state.results) return [];
+  const gelCarbs = parseFloat(els.gelCarbs.value) || 0;
+  const gelNa    = parseFloat(els.gelNa.value)    || 0;
+
+  const sortedAS = [...state.asPoints]
+    .filter(p => parseFloat(p.km) > 0)
+    .sort((a,b) => parseFloat(a.km) - parseFloat(b.km));
+  const points = [...sortedAS];
+  if (points.length === 0 || parseFloat(points[points.length-1].km) < state.results.dist) {
+    points.push({ name:'Finish', km: state.results.dist, isSupport:false });
+  }
+
+  return points.map((point, idx) => {
+    const km     = parseFloat(point.km);
+    const prevKm = idx === 0 ? 0 : parseFloat(points[idx-1].km);
+    const diff   = km - prevKm;
+    if (diff <= 0 && idx !== 0) return null;
+    const segH     = diff / state.results.speedKmh;
+    const reqWater = Math.round(state.results.hourlyWater * segH);
+    const reqCarbs = Math.round(state.results.hourlyCarbs * segH);
+    const reqNa    = Math.round(state.results.hourlyNa * segH);
+    const gels     = gelCarbs > 0 ? Math.ceil(reqCarbs / gelCarbs) : 0;
+    const naDeficit = Math.max(0, reqNa - gels * gelNa);
+    const saltDef   = (naDeficit * 2.54 / 1000).toFixed(2);
+    const label     = idx === 0 ? `Start → ${point.name}` : `${points[idx-1].name} → ${point.name}`;
+    return { label, diff, reqWater, reqCarbs, reqNa, gels, naDeficit, saltDef, isSupport: point.isSupport };
+  }).filter(Boolean);
+}
+
+function updatePlanTable() {
+  const segments = buildSegments();
+  const tbody = els.planTableBody;
+  tbody.innerHTML = '';
+  segments.forEach(seg => {
+    const row = document.createElement('tr');
+    row.className = `${seg.isSupport ? 'bg-green-50' : 'bg-white'} hover:bg-gray-50 transition`;
+    row.innerHTML = `
+      <td class="px-4 py-3">
+        <div class="font-bold text-slate-700 text-xs">${seg.label}</div>
+        <div class="text-xs text-gray-400">${seg.diff.toFixed(1)}km</div>
+        ${seg.isSupport ? '<div class="text-xs text-green-700 font-bold mt-0.5"><i class="fa-solid fa-hand-holding-heart"></i> サポート</div>' : ''}
+      </td>
+      <td class="px-4 py-3 text-center font-bold text-blue-600 bg-blue-50/30">
+        ${seg.reqWater}<span class="text-xs font-normal text-gray-400">ml</span>
+      </td>
+      <td class="px-4 py-3 text-center">
+        <span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-bold text-sm">${seg.gels}個</span>
+        <div class="text-xs text-gray-400">${seg.reqCarbs}g</div>
+      </td>
+      <td class="px-4 py-3 text-center text-pink-600 font-medium text-sm">
+        ${seg.naDeficit}<span class="text-xs text-gray-400">mg</span>
+        <div class="text-xs text-pink-400">${seg.saltDef}g</div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// ===== Race Card =====
+function updateCardContent() {
+  if (!state.results) return;
+  const r = state.results;
+
+  $('cardRaceName').textContent = els.raceName.value || 'マイレース';
+  $('cardDate').textContent = new Date().toLocaleDateString('ja-JP', { month:'short', day:'numeric' });
+  $('cardDist').textContent = r.dist;
+  $('cardTime').textContent = r.timeStr;
+  $('cardElev').textContent = r.elevUp;
+  $('cardElevSpan').style.display = r.elevUp > 0 ? '' : 'none';
+  $('cardCarbs').textContent = r.hourlyCarbs;
+  $('cardWater').textContent = r.hourlyWater;
+  $('cardNa').textContent = r.hourlyNa;
+  $('cardTemp').textContent = r.temp + '℃';
+  $('cardHumid').textContent = r.humidity + '%';
+  $('cardWeight').textContent = r.weight;
+  $('cardEquip').textContent = r.equipWeight;
+  updateCardTable();
+}
+
+function updateCardTable() {
+  const segments = buildSegments();
+  const tbody = $('cardTableBody');
+  tbody.innerHTML = '';
+  if (!segments.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:10px;">データなし</td></tr>';
+    return;
+  }
+  segments.forEach(seg => {
+    const tr = document.createElement('tr');
+    if (seg.isSupport) tr.className = 'support-row';
+    tr.innerHTML = `
+      <td style="font-weight:700;color:#1e293b;">${seg.label.replace(' → ','→')}</td>
+      <td style="text-align:center;color:#2563eb;font-weight:700;">${seg.reqWater}ml</td>
+      <td style="text-align:center;color:#d97706;font-weight:700;">${seg.gels}個</td>
+      <td style="text-align:center;color:#db2777;font-weight:700;">${seg.naDeficit}mg</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ===== Image Export =====
+async function exportCard() {
+  if (!state.results) {
+    alert('先に計算を実行してください');
+    return;
+  }
+  updateCardContent();
+  els.exportOverlay.classList.remove('hidden');
+
+  try {
+    const card = $('raceCard');
+    const canvas = await html2canvas(card, {
+      scale: 3,          // 高解像度
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+    });
+
+    // Download
+    const link = document.createElement('a');
+    const raceName = (els.raceName.value || 'race').replace(/[^\w\u3040-\u9fff]/g, '_');
+    link.download = `fuel_card_${raceName}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('画像の生成に失敗しました: ' + e.message);
+  } finally {
+    els.exportOverlay.classList.add('hidden');
+  }
+}
+
+// ===== Persistence =====
+function saveState() {
+  state.profile.weight      = els.weight.value;
+  state.profile.equipWeight = els.equipWeight.value;
+  state.profile.sweatType   = els.sweatType.value;
+  state.profile.raceName    = els.raceName.value;
+  state.race.distance       = els.distance.value;
+  state.race.elevationUp    = els.elevationUp.value;
+  state.race.elevationDown  = els.elevationDown.value;
+  state.race.timeH          = els.timeH.value;
+  state.race.timeM          = els.timeM.value;
+  state.race.temp           = els.temp.value;
+  state.race.humidity       = els.humidity.value;
+  state.race.type           = Array.from(document.getElementsByName('raceType')).find(r => r.checked)?.value || 'trail';
+  state.supply.gelCarbs     = els.gelCarbs.value;
+  state.supply.gelNa        = els.gelNa.value;
+  localStorage.setItem('efc_data', JSON.stringify(state));
+}
+
+function loadState() {
+  const stored = localStorage.getItem('efc_data');
+  if (stored) {
+    try { Object.assign(state, JSON.parse(stored)); } catch(e) {}
+  }
+
+  document.getElementsByName('gender')[state.profile.gender === 'female' ? 1 : 0].checked = true;
+  els.weight.value        = state.profile.weight      || 65;
+  els.equipWeight.value   = state.profile.equipWeight || 5;
+  els.sweatType.value     = state.profile.sweatType   || 'normal';
+  els.raceName.value      = state.profile.raceName    || '';
+
+  document.getElementsByName('raceType')[state.race.type === 'road' ? 0 : 1].checked = true;
+  els.distance.value      = state.race.distance     || '';
+  els.elevationUp.value   = state.race.elevationUp  || '';
+  els.elevationDown.value = state.race.elevationDown || '';
+  els.timeH.value         = state.race.timeH        || '';
+  els.timeM.value         = state.race.timeM        || '';
+  els.temp.value          = state.race.temp         || 20;
+  els.humidity.value      = state.race.humidity     || 60;
+  els.gelCarbs.value      = state.supply.gelCarbs   || 40;
+  els.gelNa.value         = state.supply.gelNa      || 50;
+
+  if (!state.race.intensity) state.race.intensity = 'normal';
+  updatePaceDisplay();
+}
+
+// ===== Race Database =====
+const RACE_DB = [
+  // ---- 東京グランドトレイル ----
+  {
+    id:'tgt200k', name:'東京GT 200km', fullName:'Tokyo Grand Trail 200km (193km)',
+    type:'trail', category:'東京GT',
+    distance:193, elevUp:13500, elevDown:13500,
+    timeLimitH:55, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'CP1 大根山の神',            km:7},
+      {name:'A1 御岳エイド',             km:27},
+      {name:'セルフ 青梅柚木FamilyMart', km:43},
+      {name:'CP2 梅郷駐車場',            km:44},
+      {name:'セルフ 日の出7-Eleven',     km:58},
+      {name:'A2 十里木',                 km:70},
+      {name:'A3 佐野川',                 km:87},
+      {name:'A4 富士見茶屋',             km:102},
+      {name:'A5 和田峠',                 km:118},
+      {name:'A6 十里木',                 km:127},
+      {name:'A7 都民の森',               km:145},
+      {name:'A8 御岳エイド(2周目)',      km:166},
+      {name:'A9 十里木(2周目)',          km:179},
+    ]
+  },
+  {
+    id:'tgt160k', name:'東京GT 160km', fullName:'Tokyo Grand Trail 160km (152km)',
+    type:'trail', category:'東京GT',
+    distance:152, elevUp:11000, elevDown:11000,
+    timeLimitH:48, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'CP1 大根山の神',            km:7},
+      {name:'A1 御岳エイド',             km:27},
+      {name:'セルフ 青梅柚木FamilyMart', km:43},
+      {name:'CP2 梅郷駐車場',            km:44},
+      {name:'セルフ 日の出7-Eleven',     km:58},
+      {name:'A2 十里木',                 km:70},
+      {name:'A3 佐野川',                 km:87},
+      {name:'A4 富士見茶屋',             km:102},
+      {name:'A5 和田峠',                 km:118},
+      {name:'A6 十里木',                 km:127},
+      {name:'A7 都民の森',               km:145},
+    ]
+  },
+  {
+    id:'tgt90k', name:'東京GT 90km', fullName:'Tokyo Grand Trail 90km (94km)',
+    type:'trail', category:'東京GT',
+    distance:94, elevUp:6700, elevDown:6700,
+    timeLimitH:30, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'CP1 大根山の神',            km:7},
+      {name:'A1 御岳エイド',             km:27},
+      {name:'セルフ 青梅柚木FamilyMart', km:43},
+      {name:'CP2 梅郷駐車場',            km:44},
+      {name:'セルフ 日の出7-Eleven',     km:58},
+      {name:'A2 十里木',                 km:70},
+      {name:'A7 都民の森',               km:89},
+    ]
+  },
+  {
+    id:'tgt60k', name:'東京GT 60km', fullName:'Tokyo Grand Trail 60km (59km)',
+    type:'trail', category:'東京GT',
+    distance:59, elevUp:3900, elevDown:3900,
+    timeLimitH:20, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'CP1 大根ノ山ノ神',  km:7},
+      {name:'B1 丹三郎',         km:16},
+      {name:'B2 十里木',         km:35},
+      {name:'B3 都民の森',       km:53},
+    ]
+  },
+  // ---- 彩の国 ----
+  {
+    id:'sainokuni100mile', name:'彩の国 100mile', fullName:'彩の国100マイル (162.8km)',
+    type:'trail', category:'彩の国',
+    distance:162.8, elevUp:10000, elevDown:10000,
+    timeLimitH:35, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'1.くぬぎむら体験交流館', km:14.3},
+      {name:'2.慈光寺',               km:20.4},
+      {name:'3.堂平キャンプ場',       km:32.2},
+      {name:'4.刈場坂峠',             km:39.3},
+      {name:'5.ニューサンピア(1回目)', km:53.8},
+      {name:'6.桂木観音',             km:62.0},
+      {name:'7.高山不動尊旧茶屋',     km:70.5},
+      {name:'8.竹寺',                 km:81.0},
+      {name:'9.kinoca(東吾野)',        km:92.0},
+      {name:'10.桂木観音',            km:103.2},
+      {name:'11.ニューサンピア(2回目)',km:108.2},
+      {name:'12.桂木観音',            km:116.4},
+      {name:'13.高山不動尊旧茶屋',    km:124.9},
+      {name:'14.竹寺',                km:135.4},
+      {name:'15.kinoca(東吾野)',       km:146.6},
+      {name:'16.桂木観音',            km:157.8},
+    ]
+  },
+  {
+    id:'sainokuni100km', name:'彩の国 100km', fullName:'彩の国100km (108.2km)',
+    type:'trail', category:'彩の国',
+    distance:108.2, elevUp:6650, elevDown:6650,
+    timeLimitH:31, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'1.くぬぎむら体験交流館', km:14.3},
+      {name:'2.慈光寺',               km:20.4},
+      {name:'3.堂平キャンプ場',       km:32.2},
+      {name:'4.刈場坂峠',             km:39.3},
+      {name:'5.ニューサンピア(1回目)', km:53.8},
+      {name:'6.桂木観音',             km:62.0},
+      {name:'7.高山不動尊旧茶屋',     km:70.5},
+      {name:'8.竹寺',                 km:81.0},
+      {name:'9.kinoca(東吾野)',        km:92.0},
+      {name:'10.桂木観音',            km:103.2},
+    ]
+  },
+  // ---- Mt.FUJI 100 (2026) ----
+  {
+    id:'fuji100mi_2026', name:'FUJI 100mi', fullName:'Mt.FUJI 100 — FUJI 100mi (167km)',
+    type:'trail', category:'Mt.FUJI 100',
+    distance:167, elevUp:6613, elevDown:6613,
+    timeLimitH:43, timeLimitM:45, intensity:'fast',
+    aids:[
+      {name:'CP1',km:16.3},
+      {name:'F1 富士吉田',km:25.8},
+      {name:'F2 藤本',km:52.4},
+      {name:'F3 精進湖',km:74.0},
+      {name:'F4 富士ヶ嶺',km:96.9},
+      {name:'F5 忍野',km:113.2},
+      {name:'F6 山中湖',km:122.5},
+      {name:'F7 二十曲峠',km:136.9},
+      {name:'F8 富士吉田',km:148.4},
+    ]
+  },
+  {
+    id:'kai70k_2026', name:'KAI 70k', fullName:'Mt.FUJI 100 — KAI 70k (70.2km)',
+    type:'trail', category:'Mt.FUJI 100',
+    distance:70.2, elevUp:3054, elevDown:3054,
+    timeLimitH:21, timeLimitM:0, intensity:'fast',
+    aids:[
+      {name:'K1 忍野',km:15.7},
+      {name:'K2 山中湖',km:25.2},
+      {name:'K3 二十曲峠',km:39.7},
+      {name:'K4 富士吉田',km:51.5},
+    ]
+  },
+  {
+    id:'asumi40k_2026', name:'ASUMI 40k', fullName:'Mt.FUJI 100 — ASUMI 40k (38.5km)',
+    type:'trail', category:'Mt.FUJI 100',
+    distance:38.5, elevUp:1481, elevDown:1481,
+    timeLimitH:9, timeLimitM:30, intensity:'normal',
+    aids:[
+      {name:'A1 富士吉田',km:19.7},
+    ]
+  },
+  {
+    id:'sakuya86_2026', name:'SAKUYA 8.6k', fullName:'Mt.FUJI 100 — SAKUYA 8.6k',
+    type:'trail', category:'Mt.FUJI 100',
+    distance:8.6, elevUp:154, elevDown:154,
+    timeLimitH:3, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'給水所',km:4.6},
+    ]
+  },
+  // ---- ウルトラトレイル ----
+  {
+    id:'utmf', name:'UTMF', fullName:'Ultra-Trail Mt.Fuji',
+    type:'trail', category:'ウルトラトレイル',
+    distance:165, elevUp:8000, elevDown:8000,
+    timeLimitH:46, timeLimitM:0, intensity:'fast',
+    aids:[
+      {name:'A1 富士吉田',km:14},{name:'A2 忍野',km:25},{name:'A3 山中湖',km:36},
+      {name:'A4 二十曲峠',km:47},{name:'A5 富士見峠',km:58},{name:'A6 天子',km:69},
+      {name:'A7 麓',km:84},{name:'A8 精進湖',km:99},{name:'A9 鳴沢',km:114},
+      {name:'A10 5合目',km:130},{name:'A11 山麓',km:148},
+    ]
+  },
+  {
+    id:'shin5take110', name:'信越五岳 110K', fullName:'信越五岳トレイルランニングレース 110K',
+    type:'trail', category:'ウルトラトレイル',
+    distance:110, elevUp:4800, elevDown:4800,
+    timeLimitH:29, timeLimitM:0, intensity:'fast',
+    aids:[
+      {name:'A1 袴岳',km:13},{name:'A2 斑尾',km:21},{name:'A3 戸狩',km:32},
+      {name:'A4 涌井',km:46},{name:'A5 花岡',km:60},{name:'A6 笹ヶ峰',km:74},
+      {name:'A7 乙見湖',km:87},{name:'A8 関山',km:98},
+    ]
+  },
+  {
+    id:'koumi100', name:'OSJ 小海100K', fullName:'OSJ Koumi 100K Trail Run',
+    type:'trail', category:'ウルトラトレイル',
+    distance:100, elevUp:5200, elevDown:5200,
+    timeLimitH:24, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'A1',km:13},{name:'A2',km:26},{name:'A3',km:39},
+      {name:'A4',km:52},{name:'A5',km:65},{name:'A6',km:78},{name:'A7',km:90},
+    ]
+  },
+  {
+    id:'hidaontake100', name:'飛騨高山スカイレース 100K', fullName:'飛騨高山ウルトラトレイル 100K',
+    type:'trail', category:'ウルトラトレイル',
+    distance:100, elevUp:5800, elevDown:5800,
+    timeLimitH:24, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'A1',km:12},{name:'A2',km:24},{name:'A3',km:38},
+      {name:'A4',km:52},{name:'A5',km:66},{name:'A6',km:80},{name:'A7',km:91},
+    ]
+  },
+  // ---- トレイルレース ----
+  {
+    id:'hasetsune', name:'ハセツネCUP', fullName:'日本山岳耐久レース (71.5km)',
+    type:'trail', category:'トレイルレース',
+    distance:71.5, elevUp:4582, elevDown:4522,
+    timeLimitH:24, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'第1関門 浅間峠',km:22.0},{name:'第2関門 月夜見P',km:42.0},
+    ]
+  },
+  {
+    id:'mtfuji100', name:'Mt.Fuji 100 (119km)', fullName:'Mt.Fuji 100 (119km)',
+    type:'trail', category:'トレイルレース',
+    distance:119, elevUp:6200, elevDown:6200,
+    timeLimitH:30, timeLimitM:0, intensity:'fast',
+    aids:[
+      {name:'A1',km:15},{name:'A2',km:30},{name:'A3',km:45},
+      {name:'A4',km:60},{name:'A5',km:75},{name:'A6',km:90},{name:'A7',km:105},
+    ]
+  },
+  {
+    id:'ito4trails', name:'伊豆トレイルジャーニー (42K)', fullName:'伊豆トレイルジャーニー 42K',
+    type:'trail', category:'トレイルレース',
+    distance:42, elevUp:2600, elevDown:2600,
+    timeLimitH:12, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'A1',km:8},{name:'A2',km:18},{name:'A3',km:28},{name:'A4',km:36},
+    ]
+  },
+  {
+    id:'hakone60', name:'箱根トレイル 60K', fullName:'箱根トレイル 60K',
+    type:'trail', category:'トレイルレース',
+    distance:60, elevUp:3000, elevDown:3000,
+    timeLimitH:14, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'A1',km:10},{name:'A2',km:20},{name:'A3',km:32},
+      {name:'A4',km:44},{name:'A5',km:54},
+    ]
+  },
+  // ---- ロードレース ----
+  {
+    id:'tokyo_marathon', name:'東京マラソン (フル)', fullName:'東京マラソン 42.195km',
+    type:'road', category:'ロードレース',
+    distance:42.195, elevUp:0, elevDown:0,
+    timeLimitH:7, timeLimitM:0, intensity:'sub3',
+    aids:[
+      {name:'5km',km:5},{name:'10km',km:10},{name:'15km',km:15},{name:'20km',km:20},
+      {name:'中間点',km:21.0975},{name:'25km',km:25},{name:'30km',km:30},
+      {name:'35km',km:35},{name:'40km',km:40},
+    ]
+  },
+  {
+    id:'saroma100', name:'サロマ湖100K', fullName:'サロマ湖100kmウルトラマラソン',
+    type:'road', category:'ロードレース',
+    distance:100, elevUp:100, elevDown:100,
+    timeLimitH:13, timeLimitM:0, intensity:'slow',
+    aids:[
+      {name:'10km',km:10},{name:'20km',km:20},{name:'30km',km:30},
+      {name:'40km',km:40},{name:'50km',km:50},{name:'60km',km:60},
+      {name:'70km',km:70},{name:'80km',km:80},{name:'90km',km:90},
+    ]
+  },
+  {
+    id:'ultra100_road', name:'100Kウルトラ (一般)', fullName:'100km ウルトラマラソン (目安)',
+    type:'road', category:'ロードレース',
+    distance:100, elevUp:200, elevDown:200,
+    timeLimitH:14, timeLimitM:0, intensity:'slow',
+    aids:[
+      {name:'A1',km:12},{name:'A2',km:25},{name:'A3',km:38},
+      {name:'A4',km:50},{name:'A5',km:62},{name:'A6',km:75},{name:'A7',km:88},
+    ]
+  },
+  // ---- 登山 ----
+  {
+    id:'fuji_hike', name:'富士山 吉田ルート往復', fullName:'富士山 吉田ルート (5合目起点 往復)',
+    type:'trail', category:'登山',
+    distance:14, elevUp:1450, elevDown:1450,
+    timeLimitH:9, timeLimitM:0, intensity:'tozan',
+    aids:[
+      {name:'6合目',km:2.5},{name:'7合目',km:4.5},{name:'8合目',km:6.5},{name:'山頂',km:7},
+    ]
+  },
+  {
+    id:'kirishima_hike', name:'霧島縦走 (1泊2日)', fullName:'霧島連山縦走',
+    type:'trail', category:'登山',
+    distance:25, elevUp:1800, elevDown:1800,
+    timeLimitH:12, timeLimitM:0, intensity:'tozan',
+    aids:[
+      {name:'韓国岳',km:6},{name:'大浪池',km:12},{name:'高千穂峰',km:20},
+    ]
+  },
+];
+
+// ===== Race Picker Logic =====
+function initRacePicker() {
+  const toggle  = $('racePickerToggle');
+  const picker  = $('racePicker');
+  const chevron = $('racePickerChevron');
+
+  toggle.addEventListener('click', () => {
+    const isOpen = picker.classList.toggle('open');
+    chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+    if (isOpen) renderRaceList('all');
+  });
+
+  // Category filter buttons
+  document.querySelectorAll('.race-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.race-cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderRaceList(btn.dataset.cat);
+    });
+  });
+}
+
+function renderRaceList(cat) {
+  const list = $('raceList');
+  list.innerHTML = '';
+  const races = cat === 'all' ? RACE_DB : RACE_DB.filter(r => r.category === cat);
+
+  races.forEach(race => {
+    const isTrail = race.type === 'trail';
+    const typeColor = isTrail ? 'text-green-600 bg-green-50' : 'text-blue-600 bg-blue-50';
+    const elevStr = race.elevUp > 0
+      ? `<span class="text-gray-500"><i class="fa-solid fa-mountain text-xs mr-0.5"></i>${race.elevUp.toLocaleString()}m↑</span>`
+      : '';
+
+    const btn = document.createElement('button');
+    btn.className = 'race-card-btn';
+    btn.innerHTML = `
+      <div class="flex justify-between items-start gap-2">
+        <div class="flex-1 min-w-0">
+          <div class="font-bold text-slate-800 text-sm truncate">${race.name}</div>
+          <div class="text-xs text-gray-400 truncate">${race.fullName}</div>
+        </div>
+        <span class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${typeColor}">${race.category}</span>
+      </div>
+      <div class="flex gap-3 mt-2 text-xs text-gray-500">
+        <span><i class="fa-solid fa-route mr-1 text-gray-400"></i>${race.distance}km</span>
+        <span><i class="fa-solid fa-clock mr-1 text-gray-400"></i>制限 ${race.timeLimitH}h${race.timeLimitM > 0 ? race.timeLimitM + 'm' : ''}</span>
+        ${elevStr}
+        <span><i class="fa-solid fa-location-dot mr-1 text-gray-400"></i>AS ${race.aids.length}箇所</span>
+      </div>
+    `;
+    btn.addEventListener('click', () => selectRace(race));
+    list.appendChild(btn);
+  });
+
+  if (races.length === 0) {
+    list.innerHTML = '<p class="text-center text-gray-400 text-sm py-6">レースが見つかりません</p>';
+  }
+}
+
+function selectRace(race) {
+  // Set race type
+  const isTrail = race.type === 'trail';
+  document.getElementsByName('raceType')[isTrail ? 1 : 0].checked = true;
+
+  // Set fields
+  els.raceName.value      = race.name;
+  els.distance.value      = race.distance;
+  els.elevationUp.value   = race.elevUp   || '';
+  els.elevationDown.value = race.elevDown || '';
+  els.timeH.value         = race.timeLimitH;
+  els.timeM.value         = race.timeLimitM || '';
+
+  // Set intensity
+  state.race.intensity = race.intensity || (isTrail ? 'normal' : 'sub3');
+  updateUIState(false);
+
+  // Clear existing AS and add race AS points
+  state.asPoints = [];
+  race.aids.forEach((aid, i) => {
+    state.asPoints.push({
+      id: Date.now().toString() + i,
+      name: aid.name,
+      km: aid.km,
+      isSupport: false
+    });
+  });
+  renderASInputs();
+  updatePaceDisplay();
+  saveState();
+
+  // Update UI feedback
+  $('selectedRaceLabel').textContent = `✓ ${race.name} を選択中`;
+  $('selectedRaceLabel').className = 'text-xs text-green-600 font-bold';
+
+  // Close picker
+  $('racePicker').classList.remove('open');
+  $('racePickerChevron').style.transform = '';
+
+  // Scroll to confirm
+  setTimeout(() => {
+    document.querySelector('section').scrollIntoView({ behavior:'smooth' });
+  }, 200);
+
+  // Show toast
+  showToast(`${race.name} を読み込みました (AS ${race.aids.length}箇所)`);
+}
+
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-sm px-4 py-2.5 rounded-full shadow-xl z-50 flex items-center gap-2 whitespace-nowrap';
+  toast.innerHTML = `<i class="fa-solid fa-circle-check text-green-400"></i> ${msg}`;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity .4s'; }, 2000);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+// Init race picker on DOMContentLoaded (append to existing listener)
+document.addEventListener('DOMContentLoaded', initRacePicker);
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+</script>
+</body>
+</html>
