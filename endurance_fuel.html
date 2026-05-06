@@ -23,6 +23,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
+  /* ===== Mobile-first base ===== */
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+  input, select, textarea, button { font-size: 16px; }
+  input[type="number"], input[type="text"] { font-size: 16px; }
+  button, .intensity-btn, label.cursor-pointer { min-height: 44px; }
+  .dist-preset-btn { min-height: 32px; }
+  @supports (padding: max(0px)) {
+    .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 16px); }
+  }
+  @media (max-width: 380px) {
+    main { padding-left: 12px !important; padding-right: 12px !important; }
+    section.bg-white { padding: 16px !important; }
+  }
+  /* ===== Component ===== */
   body { font-family: 'Noto Sans JP', sans-serif; -webkit-tap-highlight-color: transparent; }
   input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.2); }
   input.error { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.2) !important; }
@@ -184,7 +204,7 @@
       <div>
         <label class="block text-sm text-gray-500 mb-1">体重 (kg)</label>
         <div class="relative">
-          <input type="number" id="weight" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium" placeholder="60" value="65" min="30" max="200">
+          <input type="number" inputmode="decimal" id="weight" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium" placeholder="60" value="65" min="30" max="200">
           <span class="absolute right-3 top-2 text-gray-400 text-sm pointer-events-none">kg</span>
         </div>
       </div>
@@ -192,7 +212,7 @@
       <div>
         <label class="block text-sm text-gray-500 mb-1">装備重量 (kg) <span class="text-xs text-gray-400">ザック含む</span></label>
         <div class="relative">
-          <input type="number" id="equipWeight" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium" placeholder="5" value="5" min="0" max="50">
+          <input type="number" inputmode="decimal" id="equipWeight" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium" placeholder="5" value="5" min="0" max="50">
           <span class="absolute right-3 top-2 text-gray-400 text-sm pointer-events-none">kg</span>
         </div>
       </div>
@@ -227,7 +247,7 @@
       <!-- Distance -->
       <div>
         <label class="block text-sm text-gray-500 mb-1">距離 (km) <span class="text-red-400">*</span></label>
-        <input type="number" id="distance" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-right font-medium" placeholder="例: 25">
+        <input type="number" inputmode="decimal" id="distance" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-right font-medium" placeholder="例: 25">
         <div id="roadDistPresets" class="hidden flex flex-wrap gap-1 mt-2">
           <button type="button" class="dist-preset-btn" onclick="setDistance(10)">10km</button>
           <button type="button" class="dist-preset-btn" onclick="setDistance(21.0975)">ハーフ</button>
@@ -243,12 +263,12 @@
         </label>
         <div class="flex gap-1 items-center">
           <div class="relative flex-1">
-            <input type="number" id="timeH" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-medium" placeholder="時">
+            <input type="number" inputmode="decimal" id="timeH" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-medium" placeholder="時">
             <span class="absolute right-2 top-2 text-gray-400 text-xs pointer-events-none">h</span>
           </div>
           <span class="text-gray-400 font-bold">:</span>
           <div class="relative flex-1">
-            <input type="number" id="timeM" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-medium" placeholder="分">
+            <input type="number" inputmode="decimal" id="timeM" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-medium" placeholder="分">
             <span class="absolute right-2 top-2 text-gray-400 text-xs pointer-events-none">m</span>
           </div>
         </div>
@@ -262,7 +282,7 @@
           <i class="fa-solid fa-arrow-trend-up text-green-500 mr-1"></i>上り累積 (m)
         </label>
         <div class="relative">
-          <input type="number" id="elevationUp" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-8 text-right font-medium" placeholder="1000">
+          <input type="number" inputmode="decimal" id="elevationUp" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-8 text-right font-medium" placeholder="1000">
           <span class="absolute right-2 top-2 text-gray-400 text-xs pointer-events-none">m</span>
         </div>
       </div>
@@ -271,7 +291,7 @@
           <i class="fa-solid fa-arrow-trend-down text-red-400 mr-1"></i>下り累積 (m)
         </label>
         <div class="relative">
-          <input type="number" id="elevationDown" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-8 text-right font-medium" placeholder="1000">
+          <input type="number" inputmode="decimal" id="elevationDown" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-8 text-right font-medium" placeholder="1000">
           <span class="absolute right-2 top-2 text-gray-400 text-xs pointer-events-none">m</span>
         </div>
       </div>
@@ -303,11 +323,11 @@
     <div class="grid grid-cols-2 gap-4 bg-orange-50 p-3 rounded-lg border border-orange-100">
       <div>
         <label class="block text-xs text-orange-800 mb-1"><i class="fa-solid fa-temperature-half mr-1"></i>気温 (℃)</label>
-        <input type="number" id="temp" class="w-full bg-white border border-orange-200 rounded-lg py-1.5 px-3 text-center text-sm" value="20">
+        <input type="number" inputmode="decimal" id="temp" class="w-full bg-white border border-orange-200 rounded-lg py-1.5 px-3 text-center text-sm" value="20">
       </div>
       <div>
         <label class="block text-xs text-orange-800 mb-1"><i class="fa-solid fa-droplet mr-1"></i>湿度 (%)</label>
-        <input type="number" id="humidity" class="w-full bg-white border border-orange-200 rounded-lg py-1.5 px-3 text-center text-sm" value="60">
+        <input type="number" inputmode="decimal" id="humidity" class="w-full bg-white border border-orange-200 rounded-lg py-1.5 px-3 text-center text-sm" value="60">
       </div>
     </div>
 
@@ -604,11 +624,11 @@
         <div class="grid grid-cols-2 gap-4 mb-6">
           <div>
             <label class="block text-xs text-gray-500 mb-1">ジェル 炭水化物 (g/個)</label>
-            <input type="number" id="gelCarbs" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-center font-medium" value="40">
+            <input type="number" inputmode="decimal" id="gelCarbs" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-center font-medium" value="40">
           </div>
           <div>
             <label class="block text-xs text-gray-500 mb-1">ジェル Na (mg/個)</label>
-            <input type="number" id="gelNa" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-center font-medium" value="50">
+            <input type="number" inputmode="decimal" id="gelNa" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-center font-medium" value="50">
           </div>
         </div>
         <div class="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
@@ -886,7 +906,7 @@ function renderASInputs() {
           class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm" placeholder="AS名">
       </div>
       <div class="w-[30%]">
-        <input type="number" value="${p.km}" onchange="updateAS('${p.id}','km',this.value)"
+        <input type="number" inputmode="decimal" value="${p.km}" onchange="updateAS('${p.id}','km',this.value)"
           class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-center font-bold" placeholder="km">
       </div>
       <div class="w-[15%] flex justify-center">
