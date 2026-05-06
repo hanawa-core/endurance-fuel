@@ -1595,7 +1595,8 @@ function loadState() {
   els.sweatType.value     = state.profile.sweatType   || 'normal';
   els.raceName.value      = state.profile.raceName    || '';
 
-  document.getElementsByName('raceType')[state.race.type === 'road' ? 0 : 1].checked = true;
+  const trailRadio = Array.from(document.getElementsByName('raceType')).find(r => r.value === 'trail');
+  if (trailRadio) trailRadio.checked = true;
   els.distance.value      = state.race.distance     || '';
   els.elevationUp.value   = state.race.elevationUp  || '';
   els.elevationDown.value = state.race.elevationDown || '';
