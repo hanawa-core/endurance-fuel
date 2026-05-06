@@ -72,6 +72,61 @@
   .race-card-btn:active { transform:scale(.98); }
   #racePicker { max-height:0; overflow:hidden; transition:max-height .35s ease; }
   #racePicker.open { max-height:600px; }
+
+  /* ===== Dark Mode ===== */
+  html.dark { color-scheme:dark; }
+  .dark body { background:#0f172a !important; color:#e2e8f0; }
+  .dark header.bg-slate-900 { background:#020617 !important; border-bottom:1px solid #1e293b; }
+  .dark section,
+  .dark .bg-white { background:#1e293b !important; }
+  .dark .bg-gray-50,
+  .dark .bg-gray-100 { background:#162032 !important; }
+  .dark .bg-orange-50  { background:#1c1710 !important; }
+  .dark .bg-pink-50    { background:#200e1a !important; }
+  .dark .bg-blue-50    { background:#0d1b2a !important; }
+  .dark .bg-cyan-50    { background:#091c25 !important; }
+  .dark .bg-indigo-50  { background:#10142a !important; }
+  .dark .bg-amber-50   { background:#1a1500 !important; }
+  .dark .border-gray-100,
+  .dark .border-gray-200 { border-color:#334155 !important; }
+  .dark .border-orange-100,.dark .border-orange-200 { border-color:#3d2800 !important; }
+  .dark .border-pink-200  { border-color:#4a1535 !important; }
+  .dark .border-blue-200  { border-color:#1a3550 !important; }
+  .dark .border-cyan-100,.dark .border-cyan-200 { border-color:#0a3040 !important; }
+  .dark .border-indigo-200 { border-color:#1a2060 !important; }
+  .dark .text-slate-800 { color:#f1f5f9 !important; }
+  .dark .text-slate-700 { color:#cbd5e1 !important; }
+  .dark .text-gray-700,
+  .dark .text-gray-800 { color:#e2e8f0 !important; }
+  .dark .text-gray-600 { color:#94a3b8 !important; }
+  .dark .text-gray-500,
+  .dark .text-gray-400 { color:#64748b !important; }
+  .dark .text-orange-800,.dark .text-amber-800,.dark .text-amber-900 { color:#fbbf24 !important; }
+  .dark .text-pink-700 { color:#f472b6 !important; }
+  .dark .text-blue-700 { color:#60a5fa !important; }
+  .dark .text-cyan-800,.dark .text-cyan-600 { color:#22d3ee !important; }
+  .dark .text-green-700 { color:#4ade80 !important; }
+  .dark input,.dark select { background:#0f172a !important; color:#e2e8f0 !important; border-color:#334155 !important; }
+  .dark input::placeholder { color:#475569 !important; }
+  .dark .race-card-btn { background:#1e293b !important; border-color:#334155 !important; }
+  .dark .race-card-btn:hover { background:#0f172a !important; border-color:#3b82f6 !important; }
+  .dark .intensity-btn { background:#1e293b !important; border-color:#334155 !important; color:#e2e8f0 !important; }
+  .dark .intensity-btn.selected { background:#1d3a5f !important; }
+  .dark .dist-preset-btn { background:#1e293b !important; border-color:#334155 !important; color:#94a3b8 !important; }
+  .dark .formula-box { background:linear-gradient(135deg,#1c1710,#1a1500) !important; border-color:#78350f !important; }
+
+  /* ===== Print ===== */
+  @media print {
+    header, #slotsToggle, #racePickerToggle, .sticky,
+    #postResultBanners, footer, .res-tab,
+    .print-hide { display:none !important; }
+    body { background:white !important; padding-bottom:0 !important; }
+    #resultSection { display:block !important; }
+    #tab-detail, #tab-card, #tab-supply { display:block !important; }
+    #tab-card { display:none !important; }
+    .bg-slate-800 { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    main { padding-top:0 !important; }
+  }
 </style>
 </head>
 <body class="bg-gray-100 text-gray-800 antialiased pb-20">
@@ -83,13 +138,38 @@
       <i class="fa-solid fa-mountain-sun text-yellow-400 text-xl"></i>
       <h1 class="font-bold text-lg tracking-wide">Endurance Fuel</h1>
     </div>
-    <button id="resetBtn" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-gray-300 transition">
-      <i class="fa-solid fa-rotate-right mr-1"></i>Reset
-    </button>
+    <div class="flex items-center gap-2">
+      <button id="darkToggle" title="ダークモード切替"
+        class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-slate-700 transition">
+        <i id="darkIcon" class="fa-solid fa-moon"></i>
+      </button>
+      <button id="resetBtn" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-gray-300 transition print-hide">
+        <i class="fa-solid fa-rotate-right mr-1"></i>Reset
+      </button>
+    </div>
   </div>
 </header>
 
 <main class="max-w-3xl mx-auto px-4 py-6 space-y-6">
+
+  <!-- Save Slots -->
+  <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <button id="slotsToggle" class="w-full flex justify-between items-center px-5 py-3 hover:bg-gray-50 transition">
+      <div class="flex items-center gap-2">
+        <span class="bg-gradient-to-br from-indigo-400 to-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">
+          <i class="fa-solid fa-floppy-disk"></i>
+        </span>
+        <div class="text-left">
+          <div class="font-bold text-slate-800 text-sm">保存済みプラン</div>
+          <div class="text-xs text-gray-400">最大3件のレースプランを保存・切り替え</div>
+        </div>
+      </div>
+      <i id="slotsChevron" class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+    </button>
+    <div id="slotsPanel" style="max-height:0;overflow:hidden;transition:max-height .35s ease;">
+      <div class="border-t border-gray-100 px-4 py-3 space-y-2" id="slotsList"></div>
+    </div>
+  </section>
 
   <!-- 0. Race Picker -->
   <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -111,15 +191,18 @@
         <!-- Category Filter -->
         <div class="flex gap-2 overflow-x-auto pb-2" style="scrollbar-width:none;">
           <button class="race-cat-btn active" data-cat="all">すべて</button>
-          <button class="race-cat-btn" data-cat="Mt.FUJI 100">🗻 Mt.FUJI 100</button>
-          <button class="race-cat-btn" data-cat="彩の国">🌸 彩の国</button>
-          <button class="race-cat-btn" data-cat="東京GT">🌲 東京GT</button>
-<button class="race-cat-btn" data-cat="ロードレース">ロード</button>
-          <button class="race-cat-btn" data-cat="登山">登山</button>
+          <button class="race-cat-btn" data-cat="ウルトラトレイル">ウルトラ</button>
+          <button class="race-cat-btn" data-cat="トレイルレース">トレイル</button>
         </div>
       </div>
       <!-- Race List -->
-      <div id="raceList" class="px-4 pb-4 space-y-2 overflow-y-auto" style="max-height:380px;"></div>
+      <div id="raceList" class="px-4 pb-2 space-y-2 overflow-y-auto" style="max-height:340px;"></div>
+      <div class="px-4 pb-3 pt-1 border-t border-gray-100">
+        <a href="mailto:info@coredesign-athlete.com?subject=レース追加リクエスト&body=レース名:%0A距離:%0A累積獲得標高:%0AAS情報:"
+          class="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-700 transition">
+          <i class="fa-solid fa-plus-circle"></i> 登録されていないレースの追加リクエスト
+        </a>
+      </div>
     </div>
   </section>
 
@@ -169,14 +252,172 @@
       </div>
       <!-- Sweat Type -->
       <div>
-        <label class="block text-sm text-gray-500 mb-1">発汗タイプ (塩分濃度)</label>
+        <label class="block text-sm text-gray-500 mb-1">
+          発汗タイプ (塩分濃度)
+          <span class="text-xs text-gray-400 ml-1">〜500 / 〜950 / 〜1500 mg/L</span>
+        </label>
         <select id="sweatType" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm appearance-none cursor-pointer h-[42px]">
-          <option value="low">少ない (塩吹かない)</option>
-          <option value="normal" selected>普通 (少し白くなる)</option>
-          <option value="high">多い (塩で真っ白)</option>
+          <option value="low">少ない — 白い跡がほぼなく、汗が目にしみない</option>
+          <option value="normal" selected>普通 — 少し白くなる、塩辛さを感じることがある</option>
+          <option value="high">多い — 塩で真っ白、目にしみる、塩辛い食べ物を欲する</option>
         </select>
+        <p class="text-xs text-gray-400 mt-1">目安: 該当項目が3〜4個以上 → 「多い」を選択</p>
       </div>
     </div>
+
+    <!-- Na Checklist -->
+    <div class="mt-3">
+      <details id="naCheckDetails" class="bg-pink-50 border border-pink-200 rounded-xl overflow-hidden">
+        <summary class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-pink-100 transition select-none">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-check text-pink-500"></i>
+            <div>
+              <span class="text-sm font-bold text-pink-700">塩分濃度チェック</span>
+              <span class="text-xs text-pink-400 ml-1">発汗タイプを自動判定</span>
+            </div>
+          </div>
+          <span id="naCheckCount" class="text-xs bg-pink-200 text-pink-700 px-2 py-0.5 rounded-full font-bold">0/6</span>
+        </summary>
+        <div class="px-4 pb-4 pt-2 space-y-2">
+          <p class="text-xs text-pink-600 bg-pink-100 rounded-lg p-2">
+            <i class="fa-solid fa-circle-info mr-1"></i>
+            当てはまる項目にチェックを入れてください。チェック数に応じて発汗タイプを自動提案します。
+          </p>
+          <div class="space-y-2" id="naCheckList">
+            <label class="flex items-start gap-2 cursor-pointer p-2 rounded-lg hover:bg-pink-100 transition">
+              <input type="checkbox" class="na-check mt-0.5 accent-pink-500 w-4 h-4 shrink-0">
+              <span class="text-xs text-gray-700">ウェアや肌に白い塩分の跡が残る</span>
+            </label>
+            <label class="flex items-start gap-2 cursor-pointer p-2 rounded-lg hover:bg-pink-100 transition">
+              <input type="checkbox" class="na-check mt-0.5 accent-pink-500 w-4 h-4 shrink-0">
+              <span class="text-xs text-gray-700">汗が非常に塩辛く、目にしみる</span>
+            </label>
+            <label class="flex items-start gap-2 cursor-pointer p-2 rounded-lg hover:bg-pink-100 transition">
+              <input type="checkbox" class="na-check mt-0.5 accent-pink-500 w-4 h-4 shrink-0">
+              <span class="text-xs text-gray-700">運動後の起立時にめまいや立ちくらみがする</span>
+            </label>
+            <label class="flex items-start gap-2 cursor-pointer p-2 rounded-lg hover:bg-pink-100 transition">
+              <input type="checkbox" class="na-check mt-0.5 accent-pink-500 w-4 h-4 shrink-0">
+              <span class="text-xs text-gray-700">長時間の運動中・運動後に筋肉痙攣が起きる</span>
+            </label>
+            <label class="flex items-start gap-2 cursor-pointer p-2 rounded-lg hover:bg-pink-100 transition">
+              <input type="checkbox" class="na-check mt-0.5 accent-pink-500 w-4 h-4 shrink-0">
+              <span class="text-xs text-gray-700">暑い環境での運動後に気分が悪くなる</span>
+            </label>
+            <label class="flex items-start gap-2 cursor-pointer p-2 rounded-lg hover:bg-pink-100 transition">
+              <input type="checkbox" class="na-check mt-0.5 accent-pink-500 w-4 h-4 shrink-0">
+              <span class="text-xs text-gray-700">運動中・運動後に塩辛い食べ物を強く欲する</span>
+            </label>
+          </div>
+          <!-- Suggestion -->
+          <div id="naCheckSuggestion" class="hidden mt-2 rounded-xl p-3 text-center border">
+            <div class="text-xs text-gray-500 mb-1">判定結果</div>
+            <div id="naCheckSuggestionText" class="font-bold text-base"></div>
+            <div id="naCheckSuggestionDesc" class="text-xs text-gray-500 mt-0.5"></div>
+            <button type="button" onclick="applyNaCheckSuggestion()"
+              class="mt-2 w-full bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold py-1.5 rounded-lg transition">
+              この発汗タイプを適用する
+            </button>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Sweat Rate Test -->
+    <div class="mt-4">
+      <details id="sweatTestDetails" class="bg-blue-50 border border-blue-200 rounded-xl overflow-hidden">
+        <summary class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-blue-100 transition select-none">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-flask-vial text-blue-500"></i>
+            <div>
+              <span class="text-sm font-bold text-blue-700">発汗量テスト</span>
+              <span class="text-xs text-blue-500 ml-1">実測値で計算精度アップ</span>
+            </div>
+          </div>
+          <span id="sweatTestBadge" class="hidden text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold">使用中</span>
+        </summary>
+        <div class="px-4 pb-4 pt-2 space-y-3">
+          <p class="text-xs text-blue-700 bg-blue-100 rounded-lg p-2 leading-relaxed">
+            <i class="fa-solid fa-circle-info mr-1"></i>
+            45〜120分の運動前後に体重を測定して発汗量を算出します。<br>
+            ①排尿後に裸で計測 → ②運動 → ③タオルで体を拭いて計測
+          </p>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">運動前体重 【A】</label>
+              <div class="relative">
+                <input type="number" id="stWeightBefore" step="0.1" min="20" max="200"
+                  class="w-full bg-white border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium text-sm" placeholder="65.0">
+                <span class="absolute right-3 top-2 text-gray-400 text-xs pointer-events-none">kg</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">運動後体重 【B】</label>
+              <div class="relative">
+                <input type="number" id="stWeightAfter" step="0.1" min="20" max="200"
+                  class="w-full bg-white border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium text-sm" placeholder="64.0">
+                <span class="absolute right-3 top-2 text-gray-400 text-xs pointer-events-none">kg</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">セッション時間</label>
+              <div class="relative">
+                <input type="number" id="stDuration" min="1" max="480"
+                  class="w-full bg-white border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium text-sm" placeholder="60">
+                <span class="absolute right-3 top-2 text-gray-400 text-xs pointer-events-none">分</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">飲水量 【Z】<span class="text-gray-400"> ボトル重量差</span></label>
+              <div class="relative">
+                <input type="number" id="stFluid" min="0" max="5000"
+                  class="w-full bg-white border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-right font-medium text-sm" placeholder="500">
+                <span class="absolute right-3 top-2 text-gray-400 text-xs pointer-events-none">ml</span>
+              </div>
+            </div>
+          </div>
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" id="stUrinated" class="w-4 h-4 rounded border-gray-300 accent-blue-500">
+            <span class="text-xs text-gray-600">セッション中に排尿した <span class="text-gray-400">（−300ml補正）</span></span>
+          </label>
+          <div class="flex gap-2">
+            <button type="button" onclick="calcSweatTest()"
+              class="flex-1 bg-blue-500 hover:bg-blue-600 active:scale-95 text-white font-bold text-sm py-2 rounded-lg transition">
+              <i class="fa-solid fa-calculator mr-1"></i>発汗量を計算
+            </button>
+            <button type="button" id="stClearBtn" onclick="clearSweatTest()"
+              class="hidden px-4 bg-gray-200 hover:bg-gray-300 text-gray-600 font-bold text-sm py-2 rounded-lg transition">
+              クリア
+            </button>
+          </div>
+          <!-- Result -->
+          <div id="stResult" class="hidden bg-white border border-blue-200 rounded-xl p-3 text-center">
+            <div class="text-xs text-gray-500 mb-1">あなたの発汗量（時間あたり）</div>
+            <div class="flex items-baseline justify-center gap-1">
+              <span id="stResultVal" class="text-3xl font-black text-blue-600">0.0</span>
+              <span class="text-sm text-gray-500 font-bold">L / 時間</span>
+            </div>
+            <div id="stResultLabel" class="text-xs text-gray-400 mt-0.5"></div>
+            <!-- Na loss from sweat -->
+            <div class="mt-3 border-t border-blue-100 pt-3 grid grid-cols-2 gap-2">
+              <div class="bg-pink-50 rounded-lg p-2">
+                <div class="text-xs text-pink-500 mb-0.5">Na損失量/時間</div>
+                <div class="font-black text-pink-600"><span id="stNaPerH">--</span> <span class="text-xs font-normal text-gray-400">mg/h</span></div>
+              </div>
+              <div class="bg-pink-50 rounded-lg p-2">
+                <div class="text-xs text-pink-500 mb-0.5">Na損失量（総計）</div>
+                <div class="font-black text-pink-600"><span id="stNaTotal">--</span> <span class="text-xs font-normal text-gray-400">mg</span></div>
+              </div>
+            </div>
+            <div class="text-xs text-gray-400 mt-1">発汗タイプ: <span id="stNaTypeLabel" class="text-gray-600 font-medium">--</span></div>
+            <div class="text-xs text-green-600 mt-2 font-semibold">
+              <i class="fa-solid fa-circle-check mr-1"></i>この値を水分補給計算に反映しました
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
     <!-- Formula Preview -->
     <div class="formula-box mt-4">
       <p class="text-xs text-amber-800 font-bold mb-1"><i class="fa-solid fa-fire mr-1 text-orange-500"></i>使用カロリー計算式</p>
@@ -271,11 +512,13 @@
     <!-- Intensity Presets -->
     <div class="mb-4">
       <label class="block text-sm text-gray-500 mb-2"><i class="fa-solid fa-gauge-high mr-1"></i>強度 / 目標ペース設定</label>
-      <div id="roadPresets" class="hidden grid grid-cols-2 gap-2">
-        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub250">サブ 2:50</button>
-        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub3">サブ 3</button>
-        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub35">サブ 3:30</button>
-        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub4">サブ 4:00</button>
+      <div id="roadPresets" class="hidden grid grid-cols-3 gap-2">
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2 text-gray-600 bg-white hover:bg-gray-50 transition leading-tight" data-mode="road" data-val="sub250"><span class="text-xs font-bold">サブ2:50</span><br><span class="text-[10px] opacity-60">4:01/km</span></button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2 text-gray-600 bg-white hover:bg-gray-50 transition leading-tight" data-mode="road" data-val="sub3"><span class="text-xs font-bold">サブ3</span><br><span class="text-[10px] opacity-60">4:16/km</span></button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2 text-gray-600 bg-white hover:bg-gray-50 transition leading-tight" data-mode="road" data-val="sub35"><span class="text-xs font-bold">サブ3:30</span><br><span class="text-[10px] opacity-60">4:58/km</span></button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2 text-gray-600 bg-white hover:bg-gray-50 transition leading-tight" data-mode="road" data-val="sub4"><span class="text-xs font-bold">サブ4:00</span><br><span class="text-[10px] opacity-60">5:41/km</span></button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2 text-gray-600 bg-white hover:bg-gray-50 transition leading-tight" data-mode="road" data-val="sub430"><span class="text-xs font-bold">サブ4:30</span><br><span class="text-[10px] opacity-60">6:23/km</span></button>
+        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2 text-gray-600 bg-white hover:bg-gray-50 transition leading-tight" data-mode="road" data-val="sub5"><span class="text-xs font-bold">サブ5:00</span><br><span class="text-[10px] opacity-60">7:06/km</span></button>
       </div>
       <div id="trailPresets" class="grid grid-cols-2 gap-2">
         <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="trail" data-val="tozan">登山 (歩き中心)</button>
@@ -296,6 +539,15 @@
         <label class="block text-xs text-orange-800 mb-1"><i class="fa-solid fa-droplet mr-1"></i>湿度 (%)</label>
         <input type="number" id="humidity" class="w-full bg-white border border-orange-200 rounded-lg py-1.5 px-3 text-center text-sm" value="60">
       </div>
+    </div>
+
+    <!-- Start Time (for ETA) -->
+    <div class="mt-3 flex items-center gap-3 bg-cyan-50 p-3 rounded-lg border border-cyan-100">
+      <i class="fa-solid fa-flag text-cyan-500"></i>
+      <label class="text-xs text-cyan-800 font-bold shrink-0">スタート時刻</label>
+      <input type="time" id="startTime" value="06:00"
+        class="bg-white border border-cyan-200 rounded-lg py-1.5 px-3 text-sm w-28 focus:border-cyan-400">
+      <span class="text-xs text-cyan-600">AS到着予定時刻 (ETA) の計算に使用</span>
     </div>
   </section>
 
@@ -332,6 +584,10 @@
 
   <!-- 4. Results -->
   <div id="resultSection" class="hidden space-y-4 animate-fade-in-up pb-10">
+    <button onclick="document.querySelector('main section').scrollIntoView({behavior:'smooth'})"
+      class="w-full flex items-center justify-center gap-2 text-xs text-gray-500 hover:text-blue-600 bg-white border border-gray-200 hover:border-blue-300 py-2.5 rounded-xl transition">
+      <i class="fa-solid fa-arrow-up"></i> 入力を修正する
+    </button>
 
     <!-- Tab Bar -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -405,7 +661,7 @@
                 <i class="fa-solid fa-bottle-water text-blue-400 w-5 text-center"></i>
                 <span class="text-sm">水分</span>
               </div>
-              <div><span id="recWater" class="text-2xl font-bold">0</span> <span class="text-xs text-slate-400">ml/h</span></div>
+              <div><span id="recWater" class="text-2xl font-bold">0</span> <span class="text-xs text-slate-400">L/h</span></div>
             </div>
             <div class="bg-slate-700/50 rounded-lg p-3 flex justify-between items-center">
               <div class="flex items-center gap-2">
@@ -422,8 +678,27 @@
             <span>強度: <span id="usedIntensity" class="text-slate-300">--</span></span>
             <span>速度: <span id="usedSpeed" class="text-slate-300">--</span> km/h</span>
           </div>
+          <!-- Night correction notice -->
+          <div id="nightNote" class="hidden mt-3 text-xs text-indigo-200 bg-indigo-900/40 p-2 rounded border border-indigo-700 leading-relaxed">
+            <i class="fa-solid fa-moon mr-1 text-indigo-300"></i>
+            <span id="nightNoteText"></span>
+          </div>
           <div id="highCarbAlert" class="hidden mt-3 text-xs text-red-300 bg-red-900/30 p-2 rounded border border-red-800">
             <i class="fa-solid fa-triangle-exclamation mr-1"></i>高負荷につき推奨糖質が高めです。胃腸トレーニングを十分に行ってください。
+          </div>
+          <!-- Heat warning -->
+          <div id="heatWarning" class="hidden mt-3 text-xs p-2 rounded border"></div>
+          <!-- Share / URL / Print buttons -->
+          <div class="mt-4 grid grid-cols-3 gap-2 print-hide">
+            <button onclick="shareResult()" class="bg-sky-500 hover:bg-sky-600 active:scale-95 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-1.5 text-xs">
+              <i class="fa-solid fa-share-nodes"></i> SNSシェア
+            </button>
+            <button onclick="copyShareURL()" class="bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-1.5 text-xs">
+              <i class="fa-solid fa-link"></i> URLコピー
+            </button>
+            <button onclick="window.print()" class="bg-slate-600 hover:bg-slate-500 active:scale-95 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-1.5 text-xs">
+              <i class="fa-solid fa-print"></i> 印刷
+            </button>
           </div>
         </div>
 
@@ -440,14 +715,14 @@
                   <th class="px-4 py-3">区間</th>
                   <th class="px-4 py-3 text-center text-blue-600 bg-blue-50/50">水分</th>
                   <th class="px-4 py-3 text-center text-yellow-600 bg-yellow-50/50">ジェル</th>
-                  <th class="px-4 py-3 text-center text-pink-600 bg-pink-50/50">残Na</th>
+                  <th class="px-4 py-3 text-center text-pink-600 bg-pink-50/50">塩熱サプリ</th>
                 </tr>
               </thead>
               <tbody id="planTableBody" class="divide-y divide-gray-100"></tbody>
             </table>
           </div>
           <div class="p-3 text-xs text-gray-400 bg-gray-50">
-            ※ 残Na = ジェルで補えないナトリウム。塩熱サプリ・梅干し等で補給してください。
+            ※ 塩熱サプリ(ミドリ安全/1粒≈34mg Na)＝推奨Na摂取量からジェルNaを引いた不足分。エイドの電解質ドリンク・塩分食品でも代替可。
           </div>
         </div>
       </div>
@@ -519,7 +794,7 @@
                     <th>区間</th>
                     <th style="text-align:center;color:#2563eb;">水分</th>
                     <th style="text-align:center;color:#d97706;">ジェル</th>
-                    <th style="text-align:center;color:#db2777;">残Na</th>
+                    <th style="text-align:center;color:#db2777;">塩熱サプリ</th>
                   </tr>
                 </thead>
                 <tbody id="cardTableBody">
@@ -539,12 +814,17 @@
           </div>
         </div>
 
-        <!-- Export Button -->
-        <button id="exportBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-200 transition transform active:scale-95 flex justify-center items-center gap-2 text-base">
-          <i class="fa-solid fa-download"></i> 画像として保存 (スマホ用)
-        </button>
+        <!-- Export + Share Buttons -->
+        <div class="flex gap-2">
+          <button id="exportBtn" class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-200 transition transform active:scale-95 flex justify-center items-center gap-2 text-sm">
+            <i class="fa-solid fa-download"></i> 画像保存
+          </button>
+          <button onclick="shareResult()" class="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition transform active:scale-95 flex justify-center items-center gap-2 text-sm">
+            <i class="fa-solid fa-share-nodes"></i> SNSシェア
+          </button>
+        </div>
         <p class="text-xs text-gray-400 text-center mt-2">
-          <i class="fa-solid fa-circle-info mr-1"></i>PNG形式でダウンロードされます。写真アプリで開くとホーム画面に追加できます。
+          <i class="fa-solid fa-circle-info mr-1"></i>画像保存: PNG形式。SNSシェア: X(Twitter)・LINE等に投稿できます。
         </p>
       </div>
 
@@ -599,9 +879,12 @@
           </ul>
         </div>
         <div>
-          <h4 class="font-bold text-gray-700 mb-1"><i class="fa-solid fa-shrimp mr-1 text-pink-500"></i>ナトリウム必要量</h4>
+          <h4 class="font-bold text-gray-700 mb-1"><i class="fa-solid fa-shrimp mr-1 text-pink-500"></i>ナトリウム推奨摂取量</h4>
           <ul class="list-disc list-inside bg-gray-50 p-2 rounded space-y-1">
-            <li>総水分(L) × 汗中Na濃度: 少ない=400 / 普通=700 / 多い=1000 mg/L</li>
+            <li>推奨Na摂取量（ジェル＋サプリ合計目安）: 少ない=100 / 普通=175 / 多い=275 mg/h</li>
+            <li>気温補正: 25℃超から +5 mg/h/℃</li>
+            <li class="text-gray-400">※エイドの電解質ドリンク・塩分食品でも補給可。汗中Na損失量参考値(低500〜高1500 mg/L)より低い目安。</li>
+            <li>塩熱サプリ粒数 = (推奨Na − ジェルNa) ÷ 34mg/粒（切り上げ）</li>
             <li>食塩相当量: Na(mg) × 2.54 ÷ 1000</li>
           </ul>
         </div>
@@ -609,27 +892,38 @@
     </details>
   </section>
 
-  <footer class="mt-8 border-t border-gray-200 pt-6 pb-20 text-center space-y-4">
-    <div class="mx-4 md:mx-auto max-w-sm">
-      <div class="mb-3 text-sm text-gray-600">
-        <p class="font-bold text-slate-700 mb-1">
-          <i class="fa-solid fa-heart text-pink-500 animate-pulse mr-1"></i>開発継続のために
-        </p>
-        <p class="text-xs">もしこのアプリが役に立ったら、<br>開発者のサポートをお願いします！</p>
+  <!-- Support + Salon (after results, shown together) -->
+  <div id="postResultBanners" class="hidden space-y-3">
+    <!-- 投げ銭 -->
+    <a href="https://square.link/u/GjtXhfGH?src=sheet" target="_blank" rel="noopener noreferrer"
+       class="flex items-center gap-3 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white px-5 py-4 rounded-xl shadow-lg transition active:scale-95">
+      <span class="text-2xl">☕</span>
+      <div class="flex-1 text-left">
+        <div class="font-black text-sm">役に立ったら応援お願いします！</div>
+        <div class="text-xs text-orange-100">開発者へコーヒー1杯をおくる</div>
       </div>
-      <a href="https://square.link/u/GjtXhfGH?src=sheet" target="_blank" rel="noopener noreferrer"
-         class="block w-full bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white rounded-xl p-3 shadow-lg transition transform hover:scale-[1.02]">
-        <div class="flex items-center justify-center gap-2 font-bold">
-          <i class="fa-solid fa-gift text-xl text-yellow-300"></i>
-          <span>開発者をサポートする</span>
-        </div>
-      </a>
-    </div>
-    <div class="text-xs text-gray-500 bg-gray-50 p-4 rounded-lg mx-2 text-left mt-6">
+      <i class="fa-solid fa-chevron-right text-orange-100"></i>
+    </a>
+    <!-- Endurance Lab -->
+    <a href="https://coredesign-tr.com/p/r/OvvVSV35" target="_blank" rel="noopener noreferrer"
+       class="flex items-center gap-4 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-xl px-4 py-3.5 transition active:scale-95 text-left">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0">
+        <i class="fa-solid fa-flask text-white"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-white font-black text-sm">Endurance Lab</div>
+        <div class="text-slate-400 text-xs">科学でトレーニングを最適化 · 初月550円</div>
+      </div>
+      <i class="fa-solid fa-chevron-right text-slate-600 shrink-0"></i>
+    </a>
+  </div>
+
+  <footer class="mt-8 border-t border-gray-200 pt-6 pb-20 text-center space-y-4">
+    <div class="text-xs text-gray-500 bg-gray-50 p-4 rounded-lg mx-2 text-left">
       <p class="font-bold mb-1"><i class="fa-solid fa-circle-info mr-1"></i>免責事項</p>
       <p>本アプリの計算結果は理論値（目安）です。実際の必要量は体調・気象・個人差により異なります。ご自身の体調に合わせて補給計画を立ててください。</p>
     </div>
-    <a href="mailto:support@example.com?subject=Endurance%20Fuel%20Feedback" class="inline-flex items-center text-xs text-blue-500 hover:text-blue-700 transition">
+    <a href="mailto:info@coredesign-athlete.com?subject=Endurance%20Fuel%20Feedback" class="inline-flex items-center text-xs text-blue-500 hover:text-blue-700 transition">
       <i class="fa-solid fa-envelope mr-1"></i> バグ報告・機能リクエスト
     </a>
     <div class="text-[10px] text-gray-400">&copy; 2025 Endurance Fuel Calculator</div>
@@ -651,11 +945,18 @@ const state = {
   race: { type:'trail', distance:0, elevationUp:0, elevationDown:0, timeH:0, timeM:0, temp:20, humidity:60, intensity:'normal' },
   asPoints: [],
   supply: { gelCarbs:40, gelNa:50 },
-  results: null
+  results: null,
+  sweatTest: null   // { weightBefore, weightAfter, duration, fluid, urinated, sweatRateLh }
 };
 
 // ===== Constants =====
-const SWEAT_NA    = { low:400, normal:700, high:1000 };
+// 汗中Na濃度 mg/L — 発汗テスト表示用（PF&H: 平均約950mg/L）
+const SWEAT_NA    = { low:500, normal:950, high:1500 };
+// 推奨Na摂取量 mg/h — スポーツ栄養学ガイドライン準拠
+// (エイドの電解質ドリンク・食料でも補給できることを前提とした「サプリ計算用」目安)
+const NA_INTAKE   = { low:100, normal:175, high:275 }; // mg/h
+// 塩熱サプリ(ミドリ安全) 1粒あたりNa: 206mg÷6粒≈34mg
+const NA_PER_PILL = 206 / 6;
 const TRAIL_METS  = { tozan:6.5, slow:8.0, normal:10.0, fast:12.0 };
 const DEFAULT_INTENSITY = { trail:'normal', road:'sub3' };
 
@@ -687,14 +988,16 @@ document.addEventListener('DOMContentLoaded', () => {
   loadState();
   renderASInputs();
   setupEventListeners();
+  setupNaChecklist();
   updateUIState();
 });
 
 function setupEventListeners() {
   // Inputs → save
-  [els.weight, els.equipWeight, els.sweatType, els.temp, els.humidity, els.raceName].forEach(el => {
+  [els.weight, els.equipWeight, els.temp, els.humidity, els.raceName].forEach(el => {
     el.addEventListener('input', saveState);
   });
+  els.sweatType.addEventListener('change', () => { saveState(); updateSweatTestNaDisplay(); });
   [els.distance, els.elevationUp, els.elevationDown].forEach(el => {
     el.addEventListener('input', () => { updatePaceDisplay(); saveState(); });
   });
@@ -704,6 +1007,9 @@ function setupEventListeners() {
   [els.gelCarbs, els.gelNa].forEach(el => {
     el.addEventListener('input', () => { saveState(); if (state.results) { updatePlanTable(); updateCardTable(); } });
   });
+
+  const startTimeEl = $('startTime');
+  if (startTimeEl) startTimeEl.addEventListener('change', () => { saveState(); if (state.results) updatePlanTable(); });
 
   document.getElementsByName('gender').forEach(r => r.addEventListener('change', saveState));
   document.getElementsByName('raceType').forEach(r => r.addEventListener('change', () => {
@@ -761,7 +1067,7 @@ function handlePresetClick(btn) {
 function applyRoadPreset(val) {
   const dist = parseFloat(els.distance.value);
   if (!dist) { alert("先に距離(km)を入力してください"); return; }
-  const paceSec = { sub250:241, sub3:256, sub35:298, sub4:341 }[val];
+  const paceSec = { sub250:241, sub3:256, sub35:298, sub4:341, sub430:383, sub5:426 }[val];
   if (!paceSec) return;
   const total = dist * paceSec;
   els.timeH.value = Math.floor(total / 3600);
@@ -917,16 +1223,23 @@ function calculateAll() {
   }
 
   // ---- Hydration ----
-  let hourlySweat = 500
-    + Math.max(0, (temp - 15) * 20)
-    + (humidity > 70 ? (humidity - 70) * 5 : 0)
-    + (mets - 8) * 50;
-  hourlySweat = Math.min(1500, Math.max(300, hourlySweat));
+  let hourlySweat;
+  if (state.sweatTest?.sweatRateLh) {
+    // Use measured sweat rate from test
+    hourlySweat = Math.round(state.sweatTest.sweatRateLh * 1000);
+  } else {
+    hourlySweat = 500
+      + Math.max(0, (temp - 15) * 20)
+      + (humidity > 70 ? (humidity - 70) * 5 : 0)
+      + (mets - 8) * 50;
+    hourlySweat = Math.min(1500, Math.max(300, hourlySweat));
+  }
   const totalWaterL = (hourlySweat * totalHours) / 1000;
 
-  // ---- Sodium ----
-  const naConc   = SWEAT_NA[sweatType];
-  const hourlyNa = (hourlySweat / 1000) * naConc;
+  // ---- Sodium (推奨摂取量ベース) ----
+  // 汗中Na全量補充ではなく、スポーツ栄養学的推奨値。25℃超で+5mg/h/℃補正。
+  const naIntakeTempAdj = Math.max(0, (temp - 25) * 5);
+  const hourlyNa = NA_INTAKE[sweatType] + naIntakeTempAdj;
   const totalNa  = hourlyNa * totalHours;
 
   // ---- Carbs ----
@@ -936,6 +1249,18 @@ function calculateAll() {
   else if (mets > 11)  hourlyCarbs = 80;
   else                 hourlyCarbs = 60;
 
+  // ---- Night correction (races >= 8h that cross 22:00–05:00) ----
+  const startTimeVal2 = $('startTime')?.value || '06:00';
+  const nightHours = calcNightHours(startTimeVal2, totalHours);
+  const dayHours   = totalHours - nightHours;
+  // Night: 65% sweat, 72% Na intake (cooler, lower intensity)
+  const totalWaterLAdj = nightHours > 0.5
+    ? ((hourlySweat * dayHours) + (hourlySweat * 0.65 * nightHours)) / 1000
+    : totalWaterL;
+  const totalNaAdj = nightHours > 0.5
+    ? (hourlyNa * dayHours) + (hourlyNa * 0.72 * nightHours)
+    : totalNa;
+
   // Format time
   const fmtH = Math.floor(totalHours);
   const fmtM = Math.round((totalHours - fmtH) * 60);
@@ -943,17 +1268,20 @@ function calculateAll() {
 
   state.results = {
     totalCal: calories,
-    totalWaterL: totalWaterL.toFixed(1),
-    totalNa: Math.round(totalNa),
-    totalSalt: (totalNa * 2.54 / 1000).toFixed(1),
-    hourlyCarbs, hourlyWater: Math.round(hourlySweat),
+    totalWaterL: totalWaterLAdj.toFixed(1),
+    totalNa: Math.round(totalNaAdj),
+    totalSalt: (totalNaAdj * 2.54 / 1000).toFixed(1),
+    hourlyCarbs,
+    hourlyWater: Math.round(hourlySweat),           // ml (内部計算用・昼間基準)
+    hourlyWaterL: (hourlySweat / 1000).toFixed(2),  // L (表示用)
     hourlyNa: Math.round(hourlyNa),
     hourlySalt: (hourlyNa * 2.54 / 1000).toFixed(1),
     totalHours, dist, speedKmh, displayIntensity,
     termTime: Math.round(termTime * 10)/10,
     termDist: Math.round(termDist * 10)/10,
     totalWeight, elevUp, elevDown, timeStr,
-    weight, equipWeight, temp, humidity
+    weight, equipWeight, temp, humidity,
+    nightHours, dayHours
   };
 
   // Render detail tab
@@ -962,7 +1290,7 @@ function calculateAll() {
   els.resTotalNa.textContent    = state.results.totalNa;
   els.resTotalSalt.textContent  = state.results.totalSalt;
   els.recCarbs.textContent      = state.results.hourlyCarbs;
-  els.recWater.textContent      = state.results.hourlyWater;
+  els.recWater.textContent      = state.results.hourlyWaterL;
   els.recNa.textContent         = state.results.hourlyNa;
   els.recSalt.textContent       = state.results.hourlySalt;
   els.usedIntensity.textContent = state.results.displayIntensity;
@@ -972,7 +1300,42 @@ function calculateAll() {
   els.breakdownWeight.textContent = `${weight}+${equipWeight} = ${totalWeight}kg`;
   els.highCarbAlert.classList.toggle('hidden', hourlyCarbs <= 75);
 
+  // Heat warning (simplified outdoor WBGT)
+  const wbgt = calcWBGT(temp, humidity);
+  const heatEl = $('heatWarning');
+  if (wbgt >= 31) {
+    heatEl.className = 'mt-3 text-xs text-red-200 bg-red-900/50 p-2 rounded border border-red-700';
+    heatEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i><strong>危険 (WBGT≈' + wbgt + '℃)</strong>: 熱中症リスクが非常に高い。水分・電解質を最大限に補給し、レース中止も検討してください。';
+    heatEl.classList.remove('hidden');
+  } else if (wbgt >= 28) {
+    heatEl.className = 'mt-3 text-xs text-orange-200 bg-orange-900/30 p-2 rounded border border-orange-700';
+    heatEl.innerHTML = '<i class="fa-solid fa-sun mr-1"></i><strong>厳重警戒 (WBGT≈' + wbgt + '℃)</strong>: 激しい運動は危険です。こまめな休憩と積極的な水分補給を。';
+    heatEl.classList.remove('hidden');
+  } else if (wbgt >= 25) {
+    heatEl.className = 'mt-3 text-xs text-yellow-200 bg-yellow-900/20 p-2 rounded border border-yellow-700';
+    heatEl.innerHTML = '<i class="fa-solid fa-droplet mr-1 text-yellow-400"></i><strong>警戒 (WBGT≈' + wbgt + '℃)</strong>: 積極的な水分・Na補給を行ってください。';
+    heatEl.classList.remove('hidden');
+  } else {
+    heatEl.classList.add('hidden');
+  }
+
+  // Night correction notice
+  const nightNoteEl = $('nightNote');
+  if (nightHours > 0.5) {
+    const nh = nightHours.toFixed(1);
+    const nightWater = Math.round(hourlySweat * 0.65);
+    const nightNa    = Math.round(hourlyNa * 0.72);
+    $('nightNoteText').innerHTML =
+      `夜間帯 (22:00–05:00) が約<strong>${nh}時間</strong>含まれます。`
+      + `夜間は発汗量・Na必要量を自動減量（水分 ${Math.round(hourlySweat)}→<strong>${nightWater} ml/h</strong>、`
+      + `Na ${Math.round(hourlyNa)}→<strong>${nightNa} mg/h</strong>）。総量に反映済みです。`;
+    nightNoteEl.classList.remove('hidden');
+  } else {
+    nightNoteEl.classList.add('hidden');
+  }
+
   els.resultSection.classList.remove('hidden');
+  $('postResultBanners').classList.remove('hidden');
   switchTab('detail');
   setTimeout(() => els.resultSection.scrollIntoView({ behavior:'smooth' }), 100);
 
@@ -995,20 +1358,44 @@ function buildSegments() {
     points.push({ name:'Finish', km: state.results.dist, isSupport:false });
   }
 
+  let cumulativeH = 0;
   return points.map((point, idx) => {
     const km     = parseFloat(point.km);
     const prevKm = idx === 0 ? 0 : parseFloat(points[idx-1].km);
     const diff   = km - prevKm;
     if (diff <= 0 && idx !== 0) return null;
     const segH     = diff / state.results.speedKmh;
+    cumulativeH   += segH;
     const reqWater = Math.round(state.results.hourlyWater * segH);
     const reqCarbs = Math.round(state.results.hourlyCarbs * segH);
     const reqNa    = Math.round(state.results.hourlyNa * segH);
     const gels     = gelCarbs > 0 ? Math.ceil(reqCarbs / gelCarbs) : 0;
-    const naDeficit = Math.max(0, reqNa - gels * gelNa);
-    const saltDef   = (naDeficit * 2.54 / 1000).toFixed(2);
-    const label     = idx === 0 ? `Start → ${point.name}` : `${points[idx-1].name} → ${point.name}`;
-    return { label, diff, reqWater, reqCarbs, reqNa, gels, naDeficit, saltDef, isSupport: point.isSupport };
+    const naDeficit  = Math.max(0, reqNa - gels * gelNa);
+    const saltDef    = (naDeficit * 2.54 / 1000).toFixed(2);
+    const pillCount  = naDeficit > 0 ? Math.ceil(naDeficit / NA_PER_PILL) : 0;
+    const label      = idx === 0 ? `Start → ${point.name}` : `${points[idx-1].name} → ${point.name}`;
+    // ETA: format as HH:MM
+    const startTimeVal = $('startTime')?.value || '06:00';
+    const [sh, sm] = startTimeVal.split(':').map(Number);
+    const etaTotalMin = (sh * 60 + sm) + Math.round(cumulativeH * 60);
+    const etaH = Math.floor(etaTotalMin / 60) % 24;
+    const etaM = etaTotalMin % 60;
+    const etaStr = `${String(etaH).padStart(2,'0')}:${String(etaM).padStart(2,'0')}`;
+    const segTimeStr = segH >= 1
+      ? `${Math.floor(segH)}h${Math.round((segH % 1)*60)}m`
+      : `${Math.round(segH * 60)}分`;
+    // Night factor per segment (based on midpoint hour)
+    const midMin  = (sh * 60 + sm) + Math.round((cumulativeH - segH / 2) * 60);
+    const midHour = Math.floor(midMin / 60) % 24;
+    const isNight = midHour >= 22 || midHour < 5;
+    const nightF  = isNight ? 0.65 : 1.0;
+    const reqWaterN = Math.round(reqWater * nightF);
+    const reqNaN    = Math.round(reqNa * (isNight ? 0.72 : 1.0));
+    const naDeficitN  = Math.max(0, reqNaN - gels * gelNa);
+    const pillCountN  = naDeficitN > 0 ? Math.ceil(naDeficitN / NA_PER_PILL) : 0;
+    return { label, diff, reqWater: reqWaterN, reqCarbs, reqNa: reqNaN,
+             gels, naDeficit: naDeficitN, saltDef, pillCount: pillCountN,
+             isSupport: point.isSupport, etaStr, segTimeStr, isNight };
   }).filter(Boolean);
 }
 
@@ -1018,23 +1405,28 @@ function updatePlanTable() {
   tbody.innerHTML = '';
   segments.forEach(seg => {
     const row = document.createElement('tr');
-    row.className = `${seg.isSupport ? 'bg-green-50' : 'bg-white'} hover:bg-gray-50 transition`;
+    row.className = `${seg.isSupport ? 'bg-green-50' : seg.isNight ? 'bg-indigo-50/40' : 'bg-white'} hover:bg-gray-50 transition`;
     row.innerHTML = `
       <td class="px-4 py-3">
         <div class="font-bold text-slate-700 text-xs">${seg.label}</div>
-        <div class="text-xs text-gray-400">${seg.diff.toFixed(1)}km</div>
+        <div class="text-xs text-gray-400">${seg.diff.toFixed(1)}km · ${seg.segTimeStr}</div>
+        <div class="text-xs text-cyan-600 font-medium mt-0.5"><i class="fa-solid fa-clock text-[10px] mr-0.5"></i>着: ${seg.etaStr}</div>
+        ${seg.isNight   ? '<div class="text-xs text-indigo-500 mt-0.5"><i class="fa-solid fa-moon text-[10px] mr-0.5"></i>夜間帯 (減量済み)</div>' : ''}
         ${seg.isSupport ? '<div class="text-xs text-green-700 font-bold mt-0.5"><i class="fa-solid fa-hand-holding-heart"></i> サポート</div>' : ''}
       </td>
       <td class="px-4 py-3 text-center font-bold text-blue-600 bg-blue-50/30">
-        ${seg.reqWater}<span class="text-xs font-normal text-gray-400">ml</span>
+        ${(seg.reqWater/1000).toFixed(2)}<span class="text-xs font-normal text-gray-400">L</span>
       </td>
       <td class="px-4 py-3 text-center">
         <span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-bold text-sm">${seg.gels}個</span>
         <div class="text-xs text-gray-400">${seg.reqCarbs}g</div>
       </td>
-      <td class="px-4 py-3 text-center text-pink-600 font-medium text-sm">
-        ${seg.naDeficit}<span class="text-xs text-gray-400">mg</span>
-        <div class="text-xs text-pink-400">${seg.saltDef}g</div>
+      <td class="px-4 py-3 text-center">
+        ${seg.pillCount > 0
+          ? `<span class="inline-block bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full font-bold text-sm">${seg.pillCount}粒</span>
+             <div class="text-xs text-gray-400 mt-0.5">${seg.naDeficit}mg</div>`
+          : `<span class="text-xs text-gray-400">不要</span>`
+        }
       </td>
     `;
     tbody.appendChild(row);
@@ -1075,9 +1467,9 @@ function updateCardTable() {
     if (seg.isSupport) tr.className = 'support-row';
     tr.innerHTML = `
       <td style="font-weight:700;color:#1e293b;">${seg.label.replace(' → ','→')}</td>
-      <td style="text-align:center;color:#2563eb;font-weight:700;">${seg.reqWater}ml</td>
+      <td style="text-align:center;color:#2563eb;font-weight:700;">${(seg.reqWater/1000).toFixed(2)}L</td>
       <td style="text-align:center;color:#d97706;font-weight:700;">${seg.gels}個</td>
-      <td style="text-align:center;color:#db2777;font-weight:700;">${seg.naDeficit}mg</td>
+      <td style="text-align:center;color:#db2777;font-weight:700;">${seg.pillCount > 0 ? seg.pillCount+'粒' : '不要'}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -1114,6 +1506,315 @@ async function exportCard() {
   }
 }
 
+// ===== SNS Share =====
+function shareResult() {
+  if (!state.results) return;
+  const r        = state.results;
+  const raceName = (els.raceName.value || 'レース').trim();
+  const text = `【${raceName}】の補給計画を作りました！\n`
+    + `💧 必要水分: ${r.totalWaterL}L\n`
+    + `🔥 消費カロリー: ${r.totalCal}kcal\n`
+    + `⚡ 推奨補給: 炭水化物${r.hourlyCarbs}g/h\n`
+    + `\n#EnduranceFuel #トレイルランニング #補給計画 #トレラン`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: 'Endurance Fuel Calculator',
+      text,
+      url: location.href
+    }).catch(() => {});
+  } else {
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(location.href)}`;
+    window.open(url, '_blank', 'noopener');
+  }
+}
+window.shareResult = shareResult;
+
+// ===== WBGT calculation (simplified outdoor, no solar correction) =====
+function calcWBGT(temp, rh) {
+  const twet = temp - (100 - rh) / 5;
+  return Math.round(0.7 * twet + 0.3 * temp);
+}
+
+// ===== Night hours calculation =====
+function calcNightHours(startTimeVal, totalHours) {
+  const [sh, sm] = (startTimeVal || '06:00').split(':').map(Number);
+  const startMin = sh * 60 + sm;
+  const totalMins = Math.round(totalHours * 60);
+  let nightMins = 0;
+  for (let i = 0; i < totalMins; i++) {
+    const h = Math.floor((startMin + i) / 60) % 24;
+    if (h >= 22 || h < 5) nightMins++;
+  }
+  return nightMins / 60;
+}
+
+// ===== Dark Mode =====
+function initDarkMode() {
+  const isDark = localStorage.getItem('efc_dark') === '1'
+    || (localStorage.getItem('efc_dark') === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  if (isDark) applyDark(true);
+  $('darkToggle').addEventListener('click', () => applyDark(!document.documentElement.classList.contains('dark')));
+}
+function applyDark(on) {
+  document.documentElement.classList.toggle('dark', on);
+  $('darkIcon').className = on ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  localStorage.setItem('efc_dark', on ? '1' : '0');
+}
+
+// ===== URL Share =====
+function copyShareURL() {
+  saveState();
+  const params = {
+    rn: els.raceName.value,
+    d:  els.distance.value,
+    th: els.timeH.value,
+    tm: els.timeM.value,
+    eu: els.elevationUp.value,
+    ed: els.elevationDown.value,
+    w:  els.weight.value,
+    ew: els.equipWeight.value,
+    sw: els.sweatType.value,
+    g:  document.querySelector('[name="gender"]:checked')?.value || 'male',
+    rt: document.querySelector('[name="raceType"]:checked')?.value || 'trail',
+    t:  els.temp.value,
+    h:  els.humidity.value,
+    st: $('startTime')?.value || '06:00',
+    i:  state.race.intensity,
+    gc: els.gelCarbs.value,
+    gn: els.gelNa.value,
+    as: state.asPoints,
+  };
+  const hash = btoa(encodeURIComponent(JSON.stringify(params)));
+  const url  = location.href.split('#')[0] + '#' + hash;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('補給計画のURLをコピーしました');
+  }).catch(() => {
+    prompt('このURLをコピーしてください:', url);
+  });
+}
+window.copyShareURL = copyShareURL;
+
+function loadFromURLHash() {
+  const hash = location.hash.slice(1);
+  if (!hash) return;
+  try {
+    const p = JSON.parse(decodeURIComponent(atob(hash)));
+    if (p.rn) els.raceName.value = p.rn;
+    if (p.d)  els.distance.value = p.d;
+    if (p.th) els.timeH.value = p.th;
+    if (p.tm) els.timeM.value = p.tm;
+    if (p.eu) els.elevationUp.value = p.eu;
+    if (p.ed) els.elevationDown.value = p.ed;
+    if (p.w)  els.weight.value = p.w;
+    if (p.ew) els.equipWeight.value = p.ew;
+    if (p.sw) els.sweatType.value = p.sw;
+    if (p.g)  { const r = document.querySelector(`[name="gender"][value="${p.g}"]`); if(r) r.checked = true; }
+    if (p.rt) { const r = document.querySelector(`[name="raceType"][value="${p.rt}"]`); if(r) r.checked = true; }
+    if (p.t)  els.temp.value = p.t;
+    if (p.h)  els.humidity.value = p.h;
+    if (p.st) { const s = $('startTime'); if(s) s.value = p.st; }
+    if (p.i)  state.race.intensity = p.i;
+    if (p.gc) els.gelCarbs.value = p.gc;
+    if (p.gn) els.gelNa.value = p.gn;
+    if (Array.isArray(p.as)) state.asPoints = p.as;
+    updateUIState(false);
+    renderASInputs();
+    updatePaceDisplay();
+    saveState();
+    showToast('補給計画を読み込みました');
+  } catch(e) {}
+}
+
+// ===== Save Slots =====
+function initSlots() {
+  const toggle  = $('slotsToggle');
+  const panel   = $('slotsPanel');
+  const chevron = $('slotsChevron');
+  toggle.addEventListener('click', () => {
+    const isOpen = panel.style.maxHeight && panel.style.maxHeight !== '0px';
+    panel.style.maxHeight = isOpen ? '0' : '400px';
+    chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    if (!isOpen) renderSlots();
+  });
+}
+
+function renderSlots() {
+  const container = $('slotsList');
+  container.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    let slot = null;
+    try { slot = JSON.parse(localStorage.getItem(`efc_slot_${i}`) || 'null'); } catch(e) {}
+    const div = document.createElement('div');
+    div.className = `flex items-center gap-2 p-2.5 rounded-lg border ${slot ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-100'}`;
+    if (slot) {
+      const name = slot.profile?.raceName || `スロット ${i+1}`;
+      const dist = slot.race?.distance || '--';
+      const date = slot._savedAt ? new Date(slot._savedAt).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric'}) : '';
+      div.innerHTML = `
+        <div class="flex-1 min-w-0">
+          <div class="font-bold text-xs text-slate-800 truncate">${name}</div>
+          <div class="text-[10px] text-gray-400">${dist}km · ${date}</div>
+        </div>
+        <button onclick="loadSlot(${i})" class="text-xs bg-indigo-500 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg font-bold transition">読込</button>
+        <button onclick="saveSlot(${i})" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2.5 py-1 rounded-lg font-bold transition">上書</button>
+        <button onclick="deleteSlot(${i})" class="text-red-400 hover:text-red-600 px-1 transition"><i class="fa-solid fa-trash text-xs"></i></button>
+      `;
+    } else {
+      div.innerHTML = `
+        <div class="flex-1 text-xs text-gray-400">スロット ${i+1} — 空き</div>
+        <button onclick="saveSlot(${i})" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg font-bold transition">保存</button>
+      `;
+    }
+    container.appendChild(div);
+  }
+}
+
+function saveSlot(i) {
+  saveState();
+  const data = { ...JSON.parse(localStorage.getItem('efc_data') || '{}'), _savedAt: Date.now() };
+  delete data.results; // 計算結果は保存不要
+  localStorage.setItem(`efc_slot_${i}`, JSON.stringify(data));
+  renderSlots();
+  showToast(`スロット ${i+1} に保存しました`);
+}
+
+function loadSlot(i) {
+  const stored = localStorage.getItem(`efc_slot_${i}`);
+  if (!stored) return;
+  try {
+    const data = JSON.parse(stored);
+    delete data._savedAt;
+    localStorage.setItem('efc_data', JSON.stringify(data));
+    location.reload();
+  } catch(e) {}
+}
+
+function deleteSlot(i) {
+  if (!confirm(`スロット ${i+1} を削除しますか？`)) return;
+  localStorage.removeItem(`efc_slot_${i}`);
+  renderSlots();
+}
+window.saveSlot = saveSlot;
+window.loadSlot = loadSlot;
+window.deleteSlot = deleteSlot;
+
+// ===== Na Checklist =====
+const NA_CHECK_LABELS = { low:'少ない', normal:'普通', high:'多い' };
+const NA_CHECK_DESCS  = {
+  low:    '汗の塩分濃度は低め（〜500 mg/L）',
+  normal: '汗の塩分濃度は平均的（〜950 mg/L）',
+  high:   '汗の塩分濃度は高め（〜1500 mg/L）'
+};
+const NA_CHECK_COLORS = {
+  low:    { bg:'bg-blue-50',  border:'border-blue-200',  text:'text-blue-700'  },
+  normal: { bg:'bg-amber-50', border:'border-amber-200', text:'text-amber-700' },
+  high:   { bg:'bg-red-50',   border:'border-red-200',   text:'text-red-700'   }
+};
+let _naCheckSuggested = 'normal';
+
+function setupNaChecklist() {
+  document.querySelectorAll('.na-check').forEach(cb => {
+    cb.addEventListener('change', updateNaCheck);
+  });
+}
+
+function updateNaCheck() {
+  const checks = document.querySelectorAll('.na-check');
+  const count  = [...checks].filter(c => c.checked).length;
+  $('naCheckCount').textContent = `${count}/6`;
+
+  let type;
+  if      (count <= 1) type = 'low';
+  else if (count <= 3) type = 'normal';
+  else                 type = 'high';
+  _naCheckSuggested = type;
+
+  const sug  = $('naCheckSuggestion');
+  const col  = NA_CHECK_COLORS[type];
+  sug.className = `mt-2 rounded-xl p-3 text-center border ${col.bg} ${col.border}`;
+  $('naCheckSuggestionText').className = `font-bold text-base ${col.text}`;
+  $('naCheckSuggestionText').textContent = `${NA_CHECK_LABELS[type]} (${count}個該当)`;
+  $('naCheckSuggestionDesc').textContent  = NA_CHECK_DESCS[type];
+  sug.classList.toggle('hidden', count === 0);
+}
+
+function applyNaCheckSuggestion() {
+  els.sweatType.value = _naCheckSuggested;
+  saveState();
+  updateSweatTestNaDisplay();
+  // Visual feedback
+  els.sweatType.classList.add('ring-2','ring-pink-400');
+  setTimeout(() => els.sweatType.classList.remove('ring-2','ring-pink-400'), 1200);
+}
+window.applyNaCheckSuggestion = applyNaCheckSuggestion;
+
+// ===== Sweat Rate Test =====
+function sweatRateLabel(rate) {
+  if (rate < 1.0) return '低め（1L/h未満）';
+  if (rate <= 1.5) return '普通（1〜1.5L/h）';
+  if (rate <= 2.0) return 'やや多め（1.5〜2L/h）';
+  return '多め（2L/h超）';
+}
+
+function updateSweatTestNaDisplay() {
+  if (!state.sweatTest?.sweatRateLh) return;
+  const sweatType  = els.sweatType.value;
+  const naConc     = SWEAT_NA[sweatType];
+  const naPerH     = Math.round(state.sweatTest.sweatRateLh * naConc);
+  const totalHours = state.results?.totalHours || null;
+  $('stNaPerH').textContent    = naPerH;
+  $('stNaTotal').textContent   = totalHours ? Math.round(naPerH * totalHours) : '--';
+  $('stNaTypeLabel').textContent = { low:'少ない', normal:'普通', high:'多い' }[sweatType] || sweatType;
+}
+
+function calcSweatTest() {
+  const wBefore  = parseFloat($('stWeightBefore').value);
+  const wAfter   = parseFloat($('stWeightAfter').value);
+  const duration = parseFloat($('stDuration').value);
+  const fluid    = parseFloat($('stFluid').value) || 0;
+  const urinated = $('stUrinated').checked;
+
+  if (isNaN(wBefore) || isNaN(wAfter) || isNaN(duration) || duration <= 0) {
+    alert('運動前体重・運動後体重・セッション時間を入力してください');
+    return;
+  }
+  if (wBefore < wAfter) {
+    alert('運動前体重が運動後体重より小さいです。入力値を確認してください。');
+    return;
+  }
+
+  // 発汗量(L) = 体重減少(kg) + 飲水量(L) ± 排尿補正 (1kg≒1L)
+  const weightLossL = wBefore - wAfter;
+  let sweatL = weightLossL + fluid / 1000;
+  if (urinated) sweatL += 0.3;
+
+  const sweatRateLh = sweatL / (duration / 60);
+
+  state.sweatTest = { weightBefore: wBefore, weightAfter: wAfter, duration, fluid, urinated, sweatRateLh };
+
+  $('stResultVal').textContent   = sweatRateLh.toFixed(2);
+  $('stResultLabel').textContent = sweatRateLabel(sweatRateLh);
+  $('stResult').classList.remove('hidden');
+  $('stClearBtn').classList.remove('hidden');
+  $('sweatTestBadge').classList.remove('hidden');
+
+  updateSweatTestNaDisplay();
+  saveState();
+}
+window.calcSweatTest = calcSweatTest;
+
+function clearSweatTest() {
+  state.sweatTest = null;
+  ['stWeightBefore', 'stWeightAfter', 'stDuration', 'stFluid'].forEach(id => $(id).value = '');
+  $('stUrinated').checked = false;
+  $('stResult').classList.add('hidden');
+  $('stClearBtn').classList.add('hidden');
+  $('sweatTestBadge').classList.add('hidden');
+  saveState();
+}
+window.clearSweatTest = clearSweatTest;
+
 // ===== Persistence =====
 function saveState() {
   state.profile.weight      = els.weight.value;
@@ -1127,6 +1828,7 @@ function saveState() {
   state.race.timeM          = els.timeM.value;
   state.race.temp           = els.temp.value;
   state.race.humidity       = els.humidity.value;
+  state.race.startTime      = $('startTime')?.value || '06:00';
   state.race.type           = Array.from(document.getElementsByName('raceType')).find(r => r.checked)?.value || 'trail';
   state.supply.gelCarbs     = els.gelCarbs.value;
   state.supply.gelNa        = els.gelNa.value;
@@ -1153,174 +1855,33 @@ function loadState() {
   els.timeM.value         = state.race.timeM        || '';
   els.temp.value          = state.race.temp         || 20;
   els.humidity.value      = state.race.humidity     || 60;
+  const stEl = $('startTime'); if (stEl) stEl.value = state.race.startTime || '06:00';
   els.gelCarbs.value      = state.supply.gelCarbs   || 40;
   els.gelNa.value         = state.supply.gelNa      || 50;
 
   if (!state.race.intensity) state.race.intensity = 'normal';
   updatePaceDisplay();
+
+  // Restore sweat test UI
+  if (state.sweatTest?.sweatRateLh) {
+    const st = state.sweatTest;
+    $('stWeightBefore').value = st.weightBefore || '';
+    $('stWeightAfter').value  = st.weightAfter  || '';
+    $('stDuration').value     = st.duration     || '';
+    $('stFluid').value        = st.fluid        || '';
+    $('stUrinated').checked   = st.urinated     || false;
+    $('stResultVal').textContent = st.sweatRateLh.toFixed(2);
+    $('stResultLabel').textContent = sweatRateLabel(st.sweatRateLh);
+    $('stResult').classList.remove('hidden');
+    $('stClearBtn').classList.remove('hidden');
+    $('sweatTestBadge').classList.remove('hidden');
+    $('sweatTestDetails').open = true;
+    updateSweatTestNaDisplay();
+  }
 }
 
 // ===== Race Database =====
 const RACE_DB = [
-  // ---- 東京グランドトレイル ----
-  {
-    id:'tgt200k', name:'東京GT 200km', fullName:'Tokyo Grand Trail 200km (193km)',
-    type:'trail', category:'東京GT',
-    distance:193, elevUp:13500, elevDown:13500,
-    timeLimitH:55, timeLimitM:0, intensity:'normal',
-    aids:[
-      {name:'CP1 大根山の神',            km:7},
-      {name:'A1 御岳エイド',             km:27},
-      {name:'セルフ 青梅柚木FamilyMart', km:43},
-      {name:'CP2 梅郷駐車場',            km:44},
-      {name:'セルフ 日の出7-Eleven',     km:58},
-      {name:'A2 十里木',                 km:70},
-      {name:'A3 佐野川',                 km:87},
-      {name:'A4 富士見茶屋',             km:102},
-      {name:'A5 和田峠',                 km:118},
-      {name:'A6 十里木',                 km:127},
-      {name:'A7 都民の森',               km:145},
-      {name:'A8 御岳エイド(2周目)',      km:166},
-      {name:'A9 十里木(2周目)',          km:179},
-    ]
-  },
-  {
-    id:'tgt160k', name:'東京GT 160km', fullName:'Tokyo Grand Trail 160km (152km)',
-    type:'trail', category:'東京GT',
-    distance:152, elevUp:11000, elevDown:11000,
-    timeLimitH:48, timeLimitM:0, intensity:'normal',
-    aids:[
-      {name:'CP1 大根山の神',            km:7},
-      {name:'A1 御岳エイド',             km:27},
-      {name:'セルフ 青梅柚木FamilyMart', km:43},
-      {name:'CP2 梅郷駐車場',            km:44},
-      {name:'セルフ 日の出7-Eleven',     km:58},
-      {name:'A2 十里木',                 km:70},
-      {name:'A3 佐野川',                 km:87},
-      {name:'A4 富士見茶屋',             km:102},
-      {name:'A5 和田峠',                 km:118},
-      {name:'A6 十里木',                 km:127},
-      {name:'A7 都民の森',               km:145},
-    ]
-  },
-  {
-    id:'tgt90k', name:'東京GT 90km', fullName:'Tokyo Grand Trail 90km (94km)',
-    type:'trail', category:'東京GT',
-    distance:94, elevUp:6700, elevDown:6700,
-    timeLimitH:30, timeLimitM:0, intensity:'normal',
-    aids:[
-      {name:'CP1 大根山の神',            km:7},
-      {name:'A1 御岳エイド',             km:27},
-      {name:'セルフ 青梅柚木FamilyMart', km:43},
-      {name:'CP2 梅郷駐車場',            km:44},
-      {name:'セルフ 日の出7-Eleven',     km:58},
-      {name:'A2 十里木',                 km:70},
-      {name:'A7 都民の森',               km:89},
-    ]
-  },
-  {
-    id:'tgt60k', name:'東京GT 60km', fullName:'Tokyo Grand Trail 60km (59km)',
-    type:'trail', category:'東京GT',
-    distance:59, elevUp:3900, elevDown:3900,
-    timeLimitH:20, timeLimitM:0, intensity:'normal',
-    aids:[
-      {name:'CP1 大根ノ山ノ神',  km:7},
-      {name:'B1 丹三郎',         km:16},
-      {name:'B2 十里木',         km:35},
-      {name:'B3 都民の森',       km:53},
-    ]
-  },
-  // ---- 彩の国 ----
-  {
-    id:'sainokuni100mile', name:'彩の国 100mile', fullName:'彩の国100マイル (162.8km)',
-    type:'trail', category:'彩の国',
-    distance:162.8, elevUp:10000, elevDown:10000,
-    timeLimitH:35, timeLimitM:0, intensity:'normal',
-    aids:[
-      {name:'1.くぬぎむら体験交流館', km:14.3},
-      {name:'2.慈光寺',               km:20.4},
-      {name:'3.堂平キャンプ場',       km:32.2},
-      {name:'4.刈場坂峠',             km:39.3},
-      {name:'5.ニューサンピア(1回目)', km:53.8},
-      {name:'6.桂木観音',             km:62.0},
-      {name:'7.高山不動尊旧茶屋',     km:70.5},
-      {name:'8.竹寺',                 km:81.0},
-      {name:'9.kinoca(東吾野)',        km:92.0},
-      {name:'10.桂木観音',            km:103.2},
-      {name:'11.ニューサンピア(2回目)',km:108.2},
-      {name:'12.桂木観音',            km:116.4},
-      {name:'13.高山不動尊旧茶屋',    km:124.9},
-      {name:'14.竹寺',                km:135.4},
-      {name:'15.kinoca(東吾野)',       km:146.6},
-      {name:'16.桂木観音',            km:157.8},
-    ]
-  },
-  {
-    id:'sainokuni100km', name:'彩の国 100km', fullName:'彩の国100km (108.2km)',
-    type:'trail', category:'彩の国',
-    distance:108.2, elevUp:6650, elevDown:6650,
-    timeLimitH:31, timeLimitM:0, intensity:'normal',
-    aids:[
-      {name:'1.くぬぎむら体験交流館', km:14.3},
-      {name:'2.慈光寺',               km:20.4},
-      {name:'3.堂平キャンプ場',       km:32.2},
-      {name:'4.刈場坂峠',             km:39.3},
-      {name:'5.ニューサンピア(1回目)', km:53.8},
-      {name:'6.桂木観音',             km:62.0},
-      {name:'7.高山不動尊旧茶屋',     km:70.5},
-      {name:'8.竹寺',                 km:81.0},
-      {name:'9.kinoca(東吾野)',        km:92.0},
-      {name:'10.桂木観音',            km:103.2},
-    ]
-  },
-  // ---- Mt.FUJI 100 (2026) ----
-  {
-    id:'fuji100mi_2026', name:'FUJI 100mi', fullName:'Mt.FUJI 100 — FUJI 100mi (167km)',
-    type:'trail', category:'Mt.FUJI 100',
-    distance:167, elevUp:6613, elevDown:6613,
-    timeLimitH:43, timeLimitM:45, intensity:'fast',
-    aids:[
-      {name:'CP1',km:16.3},
-      {name:'F1 富士吉田',km:25.8},
-      {name:'F2 藤本',km:52.4},
-      {name:'F3 精進湖',km:74.0},
-      {name:'F4 富士ヶ嶺',km:96.9},
-      {name:'F5 忍野',km:113.2},
-      {name:'F6 山中湖',km:122.5},
-      {name:'F7 二十曲峠',km:136.9},
-      {name:'F8 富士吉田',km:148.4},
-    ]
-  },
-  {
-    id:'kai70k_2026', name:'KAI 70k', fullName:'Mt.FUJI 100 — KAI 70k (70.2km)',
-    type:'trail', category:'Mt.FUJI 100',
-    distance:70.2, elevUp:3054, elevDown:3054,
-    timeLimitH:21, timeLimitM:0, intensity:'fast',
-    aids:[
-      {name:'K1 忍野',km:15.7},
-      {name:'K2 山中湖',km:25.2},
-      {name:'K3 二十曲峠',km:39.7},
-      {name:'K4 富士吉田',km:51.5},
-    ]
-  },
-  {
-    id:'asumi40k_2026', name:'ASUMI 40k', fullName:'Mt.FUJI 100 — ASUMI 40k (38.5km)',
-    type:'trail', category:'Mt.FUJI 100',
-    distance:38.5, elevUp:1481, elevDown:1481,
-    timeLimitH:9, timeLimitM:30, intensity:'normal',
-    aids:[
-      {name:'A1 富士吉田',km:19.7},
-    ]
-  },
-  {
-    id:'sakuya86_2026', name:'SAKUYA 8.6k', fullName:'Mt.FUJI 100 — SAKUYA 8.6k',
-    type:'trail', category:'Mt.FUJI 100',
-    distance:8.6, elevUp:154, elevDown:154,
-    timeLimitH:3, timeLimitM:0, intensity:'normal',
-    aids:[
-      {name:'給水所',km:4.6},
-    ]
-  },
   // ---- ウルトラトレイル ----
   {
     id:'utmf', name:'UTMF', fullName:'Ultra-Trail Mt.Fuji',
@@ -1345,6 +1906,71 @@ const RACE_DB = [
       {name:'A7 乙見湖',km:87},{name:'A8 関山',km:98},
     ]
   },
+  {
+    id:'koumi100', name:'OSJ 小海100K', fullName:'OSJ Koumi 100K Trail Run',
+    type:'trail', category:'ウルトラトレイル',
+    distance:100, elevUp:5200, elevDown:5200,
+    timeLimitH:24, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'A1',km:13},{name:'A2',km:26},{name:'A3',km:39},
+      {name:'A4',km:52},{name:'A5',km:65},{name:'A6',km:78},{name:'A7',km:90},
+    ]
+  },
+  {
+    id:'sainokuni100k', name:'彩の国100K', fullName:'彩の国100kmウルトラマラソン',
+    type:'trail', category:'ウルトラトレイル',
+    distance:100, elevUp:4500, elevDown:4500,
+    timeLimitH:20, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'A1 北辻',km:11},{name:'A2 顔振峠',km:22},{name:'A3 黒山三滝',km:34},
+      {name:'A4 鎌北湖',km:45},{name:'A5 天覚山',km:57},{name:'A6 多峯主山',km:68},
+      {name:'A7 天覧山',km:78},{name:'A8 北辻(2周)',km:89},
+    ]
+  },
+  {
+    id:'sainokuni100m', name:'彩の国100マイル', fullName:'彩の国100マイルウルトラマラソン',
+    type:'trail', category:'ウルトラトレイル',
+    distance:168, elevUp:9000, elevDown:9000,
+    timeLimitH:46, timeLimitM:0, intensity:'fast',
+    aids:[
+      {name:'A1 北辻',km:11},{name:'A2 顔振峠',km:22},{name:'A3 黒山三滝',km:34},
+      {name:'A4 鎌北湖',km:45},{name:'A5 天覚山',km:57},{name:'A6 多峯主山',km:68},
+      {name:'A7 天覧山',km:78},{name:'A8 北辻(2周)',km:89},{name:'A9 顔振峠(2周)',km:100},
+      {name:'A10 黒山三滝(2周)',km:112},{name:'A11 鎌北湖(2周)',km:123},{name:'A12 天覚山(2周)',km:135},
+      {name:'A13 多峯主山(2周)',km:146},{name:'A14 天覧山(2周)',km:157},
+    ]
+  },
+  {
+    id:'tgt150', name:'Tokyo Grand Trail (150K)', fullName:'Tokyo Grand Trail 150K',
+    type:'trail', category:'ウルトラトレイル',
+    distance:150, elevUp:7800, elevDown:7800,
+    timeLimitH:40, timeLimitM:0, intensity:'fast',
+    aids:[
+      {name:'A1',km:16},{name:'A2',km:32},{name:'A3',km:48},{name:'A4',km:64},
+      {name:'A5',km:80},{name:'A6',km:96},{name:'A7',km:112},{name:'A8',km:128},
+      {name:'A9',km:140},
+    ]
+  },
+  {
+    id:'tgt90', name:'Tokyo Grand Trail (90K)', fullName:'Tokyo Grand Trail 90K',
+    type:'trail', category:'ウルトラトレイル',
+    distance:90, elevUp:5000, elevDown:5000,
+    timeLimitH:24, timeLimitM:0, intensity:'fast',
+    aids:[
+      {name:'A1',km:10},{name:'A2',km:22},{name:'A3',km:35},{name:'A4',km:48},
+      {name:'A5',km:62},{name:'A6',km:75},{name:'A7',km:83},
+    ]
+  },
+  {
+    id:'tgt60', name:'Tokyo Grand Trail (60K)', fullName:'Tokyo Grand Trail 60K',
+    type:'trail', category:'トレイルレース',
+    distance:60, elevUp:3500, elevDown:3500,
+    timeLimitH:16, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'A1',km:8},{name:'A2',km:18},{name:'A3',km:30},
+      {name:'A4',km:42},{name:'A5',km:52},
+    ]
+  },
   // ---- トレイルレース ----
   {
     id:'hasetsune', name:'ハセツネCUP', fullName:'日本山岳耐久レース (71.5km)',
@@ -1353,6 +1979,17 @@ const RACE_DB = [
     timeLimitH:24, timeLimitM:0, intensity:'normal',
     aids:[
       {name:'第1関門 浅間峠',km:22.0},{name:'第2関門 月夜見P',km:42.0},
+    ]
+  },
+  {
+    id:'ito4trails', name:'伊豆トレイルジャーニー 70K', fullName:'伊豆トレイルジャーニー ITJ 70K',
+    type:'trail', category:'トレイルレース',
+    distance:69.1, elevUp:3242, elevDown:3162,
+    timeLimitH:14, timeLimitM:0, intensity:'normal',
+    aids:[
+      {name:'A1 こがね橋',km:26.0},
+      {name:'A2 仁科峠',km:40.2},
+      {name:'A3 土肥駐車場',km:51.2},
     ]
   },
 ];
@@ -1474,8 +2111,13 @@ function showToast(msg) {
   setTimeout(() => toast.remove(), 2500);
 }
 
-// Init race picker on DOMContentLoaded (append to existing listener)
-document.addEventListener('DOMContentLoaded', initRacePicker);
+// Init race picker and slots on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  initRacePicker();
+  initSlots();
+  initDarkMode();
+  loadFromURLHash();
+});
 </script>
 
 <script>

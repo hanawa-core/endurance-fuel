@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#fff"/>
+  <circle cx="256" cy="220" r="190" fill="#0f172a"/>
+  <!-- 水滴 -->
+  <path d="M 150 155 C 195 187.5 195 252.5 150 285 C 105 252.5 105 187.5 150 155 Z" fill="#3b82f6"/>
+  <!-- ジェル袋 -->
+  <g>
+    <rect x="213" y="168.8" width="86" height="131.2" rx="21.5" fill="#fbbf24"/>
+    <path d="M 225.9 175.2 L 225.9 158 L 286.1 158 L 286.1 175.2 Z" fill="#f59e0b"/>
+    <rect x="225.9" y="140" width="60.2" height="12.8" rx="3" fill="#f59e0b"/>
+    <rect x="234.5" y="234.4" width="43" height="6" rx="3" fill="#b45309"/>
+  </g>
+  <!-- 塩キューブ -->
+  <g transform="translate(312 170)">
+    <polygon points="15,40 50,18 85,40 50,62" fill="#fff" stroke="#0f172a" stroke-width="3"/>
+    <polygon points="15,40 50,62 50,95 15,73" fill="#e2e8f0" stroke="#0f172a" stroke-width="3"/>
+    <polygon points="85,40 50,62 50,95 85,73" fill="#cbd5e1" stroke="#0f172a" stroke-width="3"/>
+  </g>
+  <!-- アプリ名 -->
+  <text x="256" y="460" text-anchor="middle" font-size="38" font-weight="900" fill="#0f172a" font-family="Arial, sans-serif" letter-spacing="2">ENDURANCE FUEL</text>
+</svg>
