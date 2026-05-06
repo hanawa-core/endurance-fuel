@@ -91,36 +91,6 @@
 
 <main class="max-w-3xl mx-auto px-4 py-6 space-y-6">
 
-  <!-- 0. Race Picker -->
-  <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <button id="racePickerToggle" class="w-full flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition">
-      <div class="flex items-center gap-2">
-        <span class="bg-gradient-to-br from-orange-400 to-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">
-          <i class="fa-solid fa-list"></i>
-        </span>
-        <div class="text-left">
-          <div class="font-bold text-slate-800 text-sm">レースを選ぶ</div>
-          <div class="text-xs text-gray-400" id="selectedRaceLabel">レースを選択すると全フィールドが自動入力されます</div>
-        </div>
-      </div>
-      <i id="racePickerChevron" class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-300"></i>
-    </button>
-
-    <div id="racePicker">
-      <div class="border-t border-gray-100 px-4 pt-3 pb-1">
-        <!-- Category Filter -->
-        <div class="flex gap-2 overflow-x-auto pb-2" style="scrollbar-width:none;">
-          <button class="race-cat-btn active" data-cat="all">すべて</button>
-          <button class="race-cat-btn" data-cat="Mt.FUJI 100">🗻 Mt.FUJI 100</button>
-          <button class="race-cat-btn" data-cat="彩の国">🌸 彩の国</button>
-          <button class="race-cat-btn" data-cat="東京GT">🌲 東京GT</button>
-        </div>
-      </div>
-      <!-- Race List -->
-      <div id="raceList" class="px-4 pb-4 space-y-2 overflow-y-auto" style="max-height:380px;"></div>
-    </div>
-  </section>
-
   <!-- 1. Profile -->
   <section class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
     <h2 class="text-slate-800 font-bold mb-4 flex items-center border-b pb-2">
@@ -174,15 +144,6 @@
           <option value="high">多い (塩で真っ白)</option>
         </select>
       </div>
-    </div>
-    <!-- Formula Preview -->
-    <div class="formula-box mt-4">
-      <p class="text-xs text-amber-800 font-bold mb-1"><i class="fa-solid fa-fire mr-1 text-orange-500"></i>使用カロリー計算式</p>
-      <p class="text-xs text-amber-900 leading-relaxed">
-        <strong>(1.8×時間 + 0.3×距離 + 10.0×上り(km) + 0.6×下り(km))</strong>
-        <span class="mx-1 text-orange-500 font-bold">×</span>
-        <strong>(体重 + 装備重量)</strong>
-      </p>
     </div>
   </section>
 
@@ -552,46 +513,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Logic Details Accordion -->
-  <section class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-    <details class="group">
-      <summary class="flex justify-between items-center font-bold cursor-pointer list-none text-slate-700">
-        <span><i class="fa-solid fa-calculator mr-2 text-gray-400"></i>計算ロジックの詳細</span>
-        <span class="transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-gray-400"></i></span>
-      </summary>
-      <div class="text-xs text-gray-600 mt-4 space-y-4 leading-relaxed border-t border-gray-100 pt-4">
-        <div>
-          <h4 class="font-bold text-gray-700 mb-1"><i class="fa-solid fa-fire mr-1 text-yellow-500"></i>消費カロリー</h4>
-          <div class="bg-amber-50 border border-amber-200 p-3 rounded space-y-1">
-            <p class="font-bold text-amber-900">kcal = (A + B) × W</p>
-            <ul class="list-disc list-inside space-y-0.5 text-amber-800">
-              <li><strong>A (時間項):</strong> 1.8 × 活動時間(h)</li>
-              <li><strong>B (距離+標高項):</strong> 0.3×距離(km) + 10.0×上り(km) + 0.6×下り(km)</li>
-              <li><strong>W (総重量):</strong> 体重(kg) + 装備重量(kg)</li>
-            </ul>
-          </div>
-        </div>
-        <div>
-          <h4 class="font-bold text-gray-700 mb-1"><i class="fa-solid fa-droplet mr-1 text-blue-500"></i>水分補給量</h4>
-          <ul class="list-disc list-inside bg-gray-50 p-2 rounded space-y-1">
-            <li>ベース 500ml/h ＋ 気温補正 ＋ 湿度補正 ＋ 強度補正</li>
-            <li>気温補正: (気温−15℃) × 20ml</li>
-            <li>湿度補正: (湿度−70%) × 5ml (70%超のみ)</li>
-            <li>強度補正 (METs): 登山6.5 / 低強度8.0 / 普通10.0 / レース12.0</li>
-            <li>範囲制限: 300〜1500 ml/h</li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-bold text-gray-700 mb-1"><i class="fa-solid fa-shrimp mr-1 text-pink-500"></i>ナトリウム必要量</h4>
-          <ul class="list-disc list-inside bg-gray-50 p-2 rounded space-y-1">
-            <li>総水分(L) × 汗中Na濃度: 少ない=400 / 普通=700 / 多い=1000 mg/L</li>
-            <li>食塩相当量: Na(mg) × 2.54 ÷ 1000</li>
-          </ul>
-        </div>
-      </div>
-    </details>
-  </section>
 
   <footer class="mt-8 border-t border-gray-200 pt-6 pb-20 text-center space-y-4">
     <div class="mx-4 md:mx-auto max-w-sm">
@@ -1459,7 +1380,7 @@ function showToast(msg) {
 }
 
 // Init race picker on DOMContentLoaded (append to existing listener)
-document.addEventListener('DOMContentLoaded', initRacePicker);
+// Race picker removed (simplified UI). initRacePicker is defined above but no longer called.
 </script>
 
 <script>
