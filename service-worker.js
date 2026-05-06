@@ -1,4 +1,4 @@
-const CACHE = 'endurance-fuel-v1';
+const CACHE = 'endurance-fuel-v2';
 const ASSETS = [
   './',
   './index.html',
