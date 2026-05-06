@@ -114,8 +114,6 @@
           <button class="race-cat-btn" data-cat="Mt.FUJI 100">🗻 Mt.FUJI 100</button>
           <button class="race-cat-btn" data-cat="彩の国">🌸 彩の国</button>
           <button class="race-cat-btn" data-cat="東京GT">🌲 東京GT</button>
-<button class="race-cat-btn" data-cat="ロードレース">ロード</button>
-          <button class="race-cat-btn" data-cat="登山">登山</button>
         </div>
       </div>
       <!-- Race List -->
@@ -195,21 +193,8 @@
       レース・環境
     </h2>
 
-    <!-- Type Selector -->
-    <div class="flex bg-gray-50 rounded-lg p-1 mb-4">
-      <label class="flex-1 text-center cursor-pointer">
-        <input type="radio" name="raceType" value="road" class="peer hidden">
-        <span class="block py-2 rounded-md text-sm font-medium text-gray-500 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition">
-          <i class="fa-solid fa-road mr-1"></i>ロード
-        </span>
-      </label>
-      <label class="flex-1 text-center cursor-pointer">
-        <input type="radio" name="raceType" value="trail" class="peer hidden" checked>
-        <span class="block py-2 rounded-md text-sm font-medium text-gray-500 peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm transition">
-          <i class="fa-solid fa-mountain mr-1"></i>トレイル / 登山
-        </span>
-      </label>
-    </div>
+    <!-- Type Selector (trail only; raceType kept for JS compatibility) -->
+    <input type="radio" name="raceType" value="trail" class="hidden" checked>
 
     <div class="grid grid-cols-2 gap-4 mb-4">
       <!-- Distance -->
@@ -277,8 +262,7 @@
         <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub35">サブ 3:30</button>
         <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="road" data-val="sub4">サブ 4:00</button>
       </div>
-      <div id="trailPresets" class="grid grid-cols-2 gap-2">
-        <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="trail" data-val="tozan">登山 (歩き中心)</button>
+      <div id="trailPresets" class="grid grid-cols-3 gap-2">
         <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="trail" data-val="slow">トレイル (ゆっくり)</button>
         <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition selected" data-mode="trail" data-val="normal">トレイル (普通)</button>
         <button type="button" class="intensity-btn border border-gray-200 rounded-lg py-2.5 text-xs text-gray-600 bg-white hover:bg-gray-50 transition" data-mode="trail" data-val="fast">トレイル (レース)</button>
