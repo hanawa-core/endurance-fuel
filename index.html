@@ -1532,8 +1532,11 @@ if ('serviceWorker' in navigator) {
 
   /* 計算結果の要点だけ拾う（表示中の値をそのまま読む） */
   function snapshot(){
+    var segs = [];
+    try { if (typeof buildSegments === 'function') segs = buildSegments(); } catch(e){}
     return {
       state: JSON.parse(JSON.stringify(state)),
+      segments: segs,
       results: {
         totalCal:   txt('resTotalCal'),
         totalWater: txt('resTotalWater'),
