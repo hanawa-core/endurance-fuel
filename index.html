@@ -1431,65 +1431,32 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-
 <!-- ==========================================================================
-     エンラボ LINE連携 ── 補給計算をLINE上で完結させるための追加ブロック
-     既存のコードには触れません。</body> の直前に置くだけです。
+     エンラボ LINE連携
+     既存のHTMLには手を入れません。JSから、アプリ本来のボタンの並びに差し込みます。
+     ・レース名の下   … 保存した計画を呼び出す
+     ・結果の保存欄   … エンラボに保存（画像として保存の上）
+     ・ランナー情報   … 次回から自動で入る
+     LINEの外で開いたときは、何も足しません。
      ========================================================================== -->
 <style>
-  #enlabBar{
-    position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;
-    background:rgba(15,23,42,.96);border-top:1px solid #1E3A5F;
-    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-    display:none;gap:8px;
-  }
-  #enlabBar.on{display:flex}
-  #enlabBar button{
-    flex:1;padding:12px;border-radius:8px;border:1px solid #0EA5E9;
-    font-weight:700;font-size:14px;line-height:1;
-  }
-  #enlabSave{background:#0EA5E9;color:#04121C}
-  #enlabList{background:transparent;color:#7DD3FC}
-  #enlabBar .note{
-    position:absolute;left:0;right:0;top:-24px;text-align:center;
-    font-size:11px;color:#93C5FD;background:rgba(15,23,42,.9);padding:3px 0;
-  }
-  #enlabSheet{
-    position:fixed;inset:0;z-index:70;background:rgba(2,6,15,.72);display:none;
-    align-items:flex-end;
-  }
+  #enlabSheet{position:fixed;inset:0;z-index:70;background:rgba(15,23,42,.45);display:none;align-items:flex-end}
   #enlabSheet.on{display:flex}
   #enlabSheet .inner{
-    width:100%;max-height:76vh;overflow-y:auto;background:#0F172A;color:#EAF2FB;
-    border-top-left-radius:14px;border-top-right-radius:14px;
-    padding:18px 16px calc(24px + env(safe-area-inset-bottom));
+    width:100%;max-height:78vh;overflow-y:auto;background:#fff;
+    border-top-left-radius:16px;border-top-right-radius:16px;padding:20px 16px 28px;
   }
-  #enlabSheet h3{margin:0 0 4px;font-size:16px;font-weight:800}
-  #enlabSheet p.sub{margin:0 0 14px;font-size:12px;color:#8FA5BF;line-height:1.7}
-  #enlabSheet .row{
-    border:1px solid #223B5C;border-radius:9px;padding:12px 14px;margin-bottom:8px;
-    background:#111D31;
-  }
-  #enlabSheet .row b{display:block;font-size:14px;margin-bottom:3px}
-  #enlabSheet .row small{display:block;font-size:11px;color:#8FA5BF;line-height:1.7}
-  #enlabSheet .row .acts{display:flex;gap:8px;margin-top:10px}
-  #enlabSheet .row .acts button{
-    flex:1;padding:9px;border-radius:6px;font-size:12.5px;font-weight:700;border:1px solid #223B5C;
-    background:#17263E;color:#EAF2FB;
-  }
-  #enlabSheet .row .acts .use{background:#0EA5E9;border-color:#0EA5E9;color:#04121C}
-  #enlabSheet .close{
-    width:100%;margin-top:6px;padding:12px;border-radius:8px;border:1px solid #223B5C;
-    background:transparent;color:#8FA5BF;font-size:13px;
-  }
-  #enlabSheet .empty{color:#8FA5BF;font-size:13px;padding:18px 0;text-align:center}
+  #enlabSheet h3{margin:0 0 4px;font-size:17px;font-weight:800;color:#0f172a}
+  #enlabSheet p.sub{margin:0 0 14px;font-size:12px;color:#64748b;line-height:1.7}
+  #enlabSheet .row{border:1px solid #e2e8f0;border-radius:12px;padding:13px 14px;margin-bottom:9px;background:#f8fafc}
+  #enlabSheet .row b{display:block;font-size:14.5px;color:#0f172a;margin-bottom:3px}
+  #enlabSheet .row small{display:block;font-size:11.5px;color:#64748b;line-height:1.7}
+  #enlabSheet .row .acts{display:flex;gap:8px;margin-top:11px}
+  #enlabSheet .row .acts button{flex:1;padding:9px;border-radius:8px;font-size:12.5px;font-weight:700;border:1px solid #e2e8f0;background:#fff;color:#475569}
+  #enlabSheet .row .acts .use{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
+  #enlabSheet .close{width:100%;margin-top:8px;padding:13px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#64748b;font-size:13.5px}
+  #enlabSheet .empty{color:#94a3b8;font-size:13px;padding:20px 0;text-align:center}
 </style>
-
-<div id="enlabBar">
-  <div class="note" id="enlabNote"></div>
-  <button id="enlabList" type="button">保存した計画</button>
-  <button id="enlabSave" type="button">この計画を保存</button>
-</div>
 
 <div id="enlabSheet">
   <div class="inner">
@@ -1508,20 +1475,16 @@ if ('serviceWorker' in navigator) {
     API:  'https://lzlizdcrgarojpmrdbrj.supabase.co/functions/v1/enlab',
     ANON: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6bGl6ZGNyZ2Fyb2pwbXJkYnJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5ODk4MDUsImV4cCI6MjEwMzU2NTgwNX0.81Sx8pwCx6SVG-f9xxZqM0MWa1EVHDQKPV85_jeOHsE'
   };
-  var token = null, plans = [];
-  var bar   = document.getElementById('enlabBar');
+  var token = null, plans = [], saveBtn = null, loadRow = null, loadCount = null;
   var sheet = document.getElementById('enlabSheet');
-  var note  = document.getElementById('enlabNote');
-  var txt   = function(id){ var e = document.getElementById(id); return e ? (e.textContent||'').trim() : ''; };
-
-  function say(m){ note.textContent = m || ''; if (m) setTimeout(function(){ note.textContent=''; }, 3200); }
+  var txt = function(id){ var e = document.getElementById(id); return e ? (e.textContent||'').trim() : ''; };
+  var toast = function(m){ if (typeof showToast === 'function') showToast(m); };
 
   function api(action, extra){
-    var body = Object.assign({ action: action, idToken: token }, extra || {});
     return fetch(CFG.API, {
-      method: 'POST',
-      headers: { 'content-type':'application/json', 'apikey':CFG.ANON, 'authorization':'Bearer '+CFG.ANON },
-      body: JSON.stringify(body)
+      method:'POST',
+      headers:{ 'content-type':'application/json', 'apikey':CFG.ANON, 'authorization':'Bearer '+CFG.ANON },
+      body: JSON.stringify(Object.assign({ action:action, idToken:token }, extra||{}))
     }).then(function(r){
       return r.json().catch(function(){ return {}; }).then(function(j){
         if (!r.ok) throw new Error(j.detail || j.error || ('HTTP '+r.status));
@@ -1530,7 +1493,17 @@ if ('serviceWorker' in navigator) {
     });
   }
 
-  /* 計算結果の要点だけ拾う（表示中の値をそのまま読む） */
+  function settings(){
+    return {
+      weight:      state.profile && state.profile.weight,
+      equipWeight: state.profile && state.profile.equipWeight,
+      sweatType:   state.profile && state.profile.sweatType,
+      gender:      state.profile && state.profile.gender,
+      gelCarbs:    state.supply && state.supply.gelCarbs,
+      gelNa:       state.supply && state.supply.gelNa
+    };
+  }
+
   function snapshot(){
     var segs = [];
     try { if (typeof buildSegments === 'function') segs = buildSegments(); } catch(e){}
@@ -1556,6 +1529,12 @@ if ('serviceWorker' in navigator) {
     return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
   }
 
+  function refreshLoadRow(){
+    if (!loadRow) return;
+    loadRow.style.display = plans.length ? '' : 'none';
+    if (loadCount) loadCount.textContent = plans.length;
+  }
+
   function renderRows(){
     var host = document.getElementById('enlabRows');
     if (!plans.length){ host.innerHTML = '<div class="empty">まだ保存された計画はありません。</div>'; return; }
@@ -1564,12 +1543,11 @@ if ('serviceWorker' in navigator) {
       var rc = st.race || {}, rs = (p.payload && p.payload.results) || {};
       var line = [
         rc.distance ? rc.distance+'km' : null,
-        (rc.elevationUp ? 'D+'+rc.elevationUp+'m' : null),
-        (rc.timeH || rc.timeM) ? ((rc.timeH||0)+'h'+(rc.timeM||0)+'m') : null,
+        rc.elevationUp ? 'D+'+rc.elevationUp+'m' : null,
+        (rc.timeH || rc.timeM) ? ((rc.timeH||0)+'時間'+(rc.timeM||0)+'分') : null,
         rs.totalCal ? rs.totalCal+'kcal' : null
-      ].filter(Boolean).join('　／　');
-      return '<div class="row">'+
-        '<b>'+ (p.race_name || '（レース名なし）') +'</b>'+
+      ].filter(Boolean).join('　/　');
+      return '<div class="row"><b>'+ (p.race_name || '（レース名なし）') +'</b>'+
         '<small>'+ fmtDate(p.created_at) + (line ? '<br>'+line : '') +'</small>'+
         '<div class="acts">'+
           '<button type="button" class="use" data-use="'+p.id+'">この内容で開く</button>'+
@@ -1582,14 +1560,13 @@ if ('serviceWorker' in navigator) {
     });
     host.querySelectorAll('[data-del]').forEach(function(b){
       b.onclick = function(){
-        api('fuel.delete', { id: Number(b.dataset.del) })
-          .then(function(r){ plans = r.plans || []; renderRows(); })
-          .catch(function(e){ alert('削除できませんでした：'+e.message); });
+        api('fuel.delete', { id:Number(b.dataset.del) })
+          .then(function(r){ plans = r.plans || []; renderRows(); refreshLoadRow(); toast('削除しました'); })
+          .catch(function(e){ toast('削除できませんでした'); });
       };
     });
   }
 
-  /* 保存した計画を、アプリ本来の読み込み処理に流し込む */
   function usePlan(id){
     var p = plans.find(function(x){ return x.id === id; });
     if (!p || !p.payload || !p.payload.state) return;
@@ -1599,40 +1576,78 @@ if ('serviceWorker' in navigator) {
     if (typeof renderASInputs === 'function') renderASInputs();
     sheet.classList.remove('on');
     if (typeof calculateAll === 'function') { try { calculateAll(); } catch(e){} }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    say('読み込みました');
+    window.scrollTo({ top:0, behavior:'smooth' });
+    toast('読み込みました');
   }
 
-  document.getElementById('enlabList').onclick  = function(){ renderRows(); sheet.classList.add('on'); };
   document.getElementById('enlabClose').onclick = function(){ sheet.classList.remove('on'); };
   sheet.onclick = function(e){ if (e.target === sheet) sheet.classList.remove('on'); };
 
-  document.getElementById('enlabSave').onclick = function(){
-    var btn = this; btn.disabled = true; btn.textContent = '保存中…';
+  /* ---- アプリ本来の並びに差し込む ---- */
+  function mount(){
+    /* ① レース名の下：保存した計画を呼び出す */
+    var rn = document.getElementById('raceName');
+    if (rn && rn.parentElement){
+      loadRow = document.createElement('div');
+      loadRow.className = 'mt-2 flex justify-end';
+      loadRow.style.display = 'none';
+      loadRow.innerHTML =
+        '<button type="button" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-full font-medium transition">'+
+        '<i class="fa-solid fa-clock-rotate-left mr-1"></i>保存した計画から選ぶ（<span id="enlabCount">0</span>）</button>';
+      rn.parentElement.appendChild(loadRow);
+      loadCount = document.getElementById('enlabCount');
+      loadRow.querySelector('button').onclick = function(){ renderRows(); sheet.classList.add('on'); };
+    }
+
+    /* ② 結果の保存欄：「画像として保存」の上に置く */
+    var exp = document.getElementById('exportBtn');
+    if (exp && exp.parentElement){
+      var wrap = document.createElement('div');
+      wrap.className = 'mb-3';
+      wrap.innerHTML =
+        '<button id="enlabSave" type="button" class="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-sky-200 transition transform active:scale-95 flex justify-center items-center gap-2 text-base">'+
+        '<i class="fa-solid fa-bookmark"></i> エンラボに保存</button>'+
+        '<p class="text-xs text-gray-400 text-center mt-2"><i class="fa-solid fa-circle-info mr-1"></i>'+
+        'この計画を残して、次回そのまま呼び出せます。</p>';
+      exp.parentElement.insertBefore(wrap, exp);
+      saveBtn = document.getElementById('enlabSave');
+      saveBtn.onclick = doSave;
+    }
+  }
+
+  function doSave(){
+    if (!saveBtn) return;
+    var label = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 保存中…';
     if (typeof saveState === 'function') { try { saveState(); } catch(e){} }
-    var snap = snapshot();
     api('fuel.put', {
       raceName: (state.profile && state.profile.raceName) || '',
-      payload:  snap,
-      settings: {
-        weight:      state.profile && state.profile.weight,
-        equipWeight: state.profile && state.profile.equipWeight,
-        sweatType:   state.profile && state.profile.sweatType,
-        gender:      state.profile && state.profile.gender,
-        gelCarbs:    state.supply && state.supply.gelCarbs,
-        gelNa:       state.supply && state.supply.gelNa
-      }
+      payload:  snapshot(),
+      settings: settings()
     }).then(function(r){
       plans = r.plans || [];
-      say('保存しました');
+      refreshLoadRow();
+      toast('エンラボに保存しました');
     }).catch(function(e){
-      say('保存できませんでした（'+e.message+'）');
+      toast('保存できませんでした');
+      console.warn(e);
     }).finally(function(){
-      btn.disabled = false; btn.textContent = 'この計画を保存';
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = label;
     });
-  };
+  }
 
-  /* 起動：LINEの中でだけ出す */
+  /* ランナー情報は押さなくても残す（計算するたびに静かに更新） */
+  var t = null;
+  function autoSaveProfile(){
+    clearTimeout(t);
+    t = setTimeout(function(){
+      api('fuel.put', { settings: settings() }).catch(function(){});
+    }, 2500);
+  }
+
+  /* ---- 起動：LINEの中でだけ ---- */
   if (typeof liff === 'undefined') return;
   liff.init({ liffId: CFG.LIFF_ID }).then(function(){
     if (!liff.isLoggedIn()) { liff.login(); return; }
@@ -1641,22 +1656,24 @@ if ('serviceWorker' in navigator) {
       plans = r.plans || [];
       var s = r.settings;
       if (s){
-        /* ランナー情報は毎回入れ直さなくていい */
-        if (s.weight)      { state.profile.weight      = s.weight;      document.getElementById('weight').value = s.weight; }
-        if (s.equipWeight) { state.profile.equipWeight = s.equipWeight; document.getElementById('equipWeight').value = s.equipWeight; }
-        if (s.sweatType)   { state.profile.sweatType   = s.sweatType;   document.getElementById('sweatType').value = s.sweatType; }
-        if (s.gelCarbs)    { state.supply.gelCarbs     = s.gelCarbs;    document.getElementById('gelCarbs').value = s.gelCarbs; }
-        if (s.gelNa)       { state.supply.gelNa        = s.gelNa;       document.getElementById('gelNa').value = s.gelNa; }
-        say('前回のランナー情報を読み込みました');
+        var set = function(id, v, path){
+          if (v === undefined || v === null || v === '') return;
+          var el = document.getElementById(id); if (el) el.value = v;
+          path(v);
+        };
+        set('weight',      s.weight,      function(v){ state.profile.weight = v; });
+        set('equipWeight', s.equipWeight, function(v){ state.profile.equipWeight = v; });
+        set('sweatType',   s.sweatType,   function(v){ state.profile.sweatType = v; });
+        set('gelCarbs',    s.gelCarbs,    function(v){ state.supply.gelCarbs = v; });
+        set('gelNa',       s.gelNa,       function(v){ state.supply.gelNa = v; });
       }
-      bar.classList.add('on');
-      document.body.style.paddingBottom = '84px';
+      mount();
+      refreshLoadRow();
+      var calc = document.getElementById('calcBtn');
+      if (calc) calc.addEventListener('click', autoSaveProfile);
     });
-  }).catch(function(e){
-    console.warn('LIFF init failed', e);
-  });
+  }).catch(function(e){ console.warn('LIFF init failed', e); });
 })();
 </script>
-
 </body>
 </html>
